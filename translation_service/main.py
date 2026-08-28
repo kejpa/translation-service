@@ -17,13 +17,11 @@ app = FastAPI(
     version=VERSION,
 )
 
+
 @app.get("/")
 def root():
-    return {
-        "service": PROJECT_NAME,
-        "version": VERSION,
-        "status": "running"
-    }
+    return {"service": PROJECT_NAME, "version": VERSION, "status": "running"}
+
 
 @app.get("/health")
 def health():
