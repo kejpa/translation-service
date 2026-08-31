@@ -1,7 +1,7 @@
 services:
   translator:
     build: .
-    container_name: translator
+    container_name: translation-service
     ports:
       - "8000:8000"
     restart: unless-stopped
