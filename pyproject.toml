@@ -10,6 +10,8 @@ dependencies = [
     "uvicorn",
     "requests",
     "pydantic",
+    "python-docx>=1.2.0",
+    "python-multipart>=0.0.32",
 ]
 
 [build-system]
