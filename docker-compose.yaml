@@ -1,6 +1,7 @@
 services:
   translator:
     build: .
+
     container_name: translation-service
     ports:
       - "${PORT:-8000}:8000"
