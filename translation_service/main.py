@@ -31,16 +31,21 @@ app = FastAPI(
 
 @app.get("/")
 def root():
-    return {"service": PROJECT_NAME, "version": VERSION, "status": "running"}
+    return {
+        "service": PROJECT_NAME,
+        "version": VERSION,
+        "status": "running",
+        "docker": "running",
+    }
 
 
 @app.get("/health")
 def health(db: Session = Depends(get_db)):
     db.execute(text("SELECT 1"))
-
     return {
         "status": "running",
         "database": "connected",
+        "docker": "running",
     }
 
 

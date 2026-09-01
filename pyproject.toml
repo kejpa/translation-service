@@ -28,3 +28,6 @@ dev = [
     "ruff>=0.16.5",
     "sqlalchemy>=2.0.52",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
