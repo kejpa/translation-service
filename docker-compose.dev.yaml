@@ -1,0 +1,38 @@
+services:
+  translator:
+    build: .
+
+    container_name: translation-service-dev
+
+    ports:
+      - "${PORT:-8000}:8000"
+
+    volumes:
+      - .:/app
+
+    command:
+      [
+        "uv",
+        "run",
+        "uvicorn",
+        "translation_service.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+        "--reload"
+      ]
+
+  ollama:
+    image: ollama/ollama
+
+    container_name: ollama-dev
+
+    ports:
+      - "11434:11434"
+
+    volumes:
+      - ollama_data_dev:/root/.ollama
+
+volumes:
+  ollama_data_dev:
