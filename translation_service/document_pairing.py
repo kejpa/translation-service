@@ -20,8 +20,8 @@ def pair_paragraphs(
 
 
 def import_document_pair(
-    source_file: str | Path,
-    target_file: str | Path,
+    source_file: Path,
+    target_file: Path,
 ) -> list[tuple[str, str]]:
     source_paragraphs = extract_paragraphs(source_file)
     target_paragraphs = extract_paragraphs(target_file)
@@ -61,8 +61,8 @@ def save_document_pairs(
 
 
 def import_and_save_document_pair(
-    source_path: str | Path,
-    target_path: str | Path,
+    source_path: Path,
+    target_path: Path,
     source_filename: str,
     target_filename: str,
     db: Session,

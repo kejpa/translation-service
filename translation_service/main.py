@@ -91,7 +91,7 @@ async def parse_docx(
         suffix=".docx",
     ) as temp_file:
         temp_file.write(await file.read())
-        temp_path = temp_file.name
+        temp_path = Path(temp_file.name)
 
     try:
         paragraphs = extract_paragraphs(temp_path)
@@ -143,11 +143,11 @@ async def import_document_pair_endpoint(
 
     with NamedTemporaryFile(delete=False, suffix=".docx") as source_temp:
         source_temp.write(await source_file.read())
-        source_path = source_temp.name
+        source_path = Path(source_temp.name)
 
     with NamedTemporaryFile(delete=False, suffix=".docx") as target_temp:
         target_temp.write(await target_file.read())
-        target_path = target_temp.name
+        target_path = Path(target_temp.name)
 
     try:
         imported_count = import_and_save_document_pair(

@@ -51,16 +51,16 @@ def test_import_document_pair(tmp_path):
     source_doc = Document()
     source_doc.add_paragraph("Hei maailma")
     source_doc.add_paragraph("Miten voit?")
-    source_doc.save(source_path)
+    source_doc.save(str(source_path))
 
     target_doc = Document()
     target_doc.add_paragraph("Hej världen")
     target_doc.add_paragraph("Hur mår du?")
-    target_doc.save(target_path)
+    target_doc.save(str(target_path))
 
     pairs = import_document_pair(
-        str(source_path),
-        str(target_path),
+        source_path,
+        target_path,
     )
 
     assert pairs == [

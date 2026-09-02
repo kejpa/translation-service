@@ -3,10 +3,10 @@ from pathlib import Path
 from docx import Document
 
 
-def extract_paragraphs(file_path: str | Path) -> list[str]:
+def extract_paragraphs(file_path: Path) -> list[str]:
     """
     Extract non-empty paragraphs from a DOCX file
-    while preserving document"""
+    while preserving the document"""
     document = Document(str(file_path))
 
     return [
