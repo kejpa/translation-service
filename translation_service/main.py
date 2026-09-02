@@ -13,6 +13,7 @@ from translation_service.docx_parser import extract_paragraphs
 
 from docx.opc.exceptions import PackageNotFoundError
 
+from translation_service.translation_memory import find_exact_match
 
 VERSION = Path("VERSION").read_text(encoding="utf-8").strip()
 
@@ -179,3 +180,19 @@ async def import_document_pair_endpoint(
     finally:
         Path(source_path).unlink(missing_ok=True)
         Path(target_path).unlink(missing_ok=True)
+
+
+@app.get("/translations/exact")
+def get_exact_match(
+    source_text: str,
+    db: Session = Depends(get_db),
+):
+    translation = find_exact_match(
+        source_text,
+        db,
+    )
+
+    return {
+        "source_text": source_text,
+        "target_text": translation,
+    }
