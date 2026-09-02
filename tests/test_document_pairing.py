@@ -111,8 +111,10 @@ def test_import_and_save_document_pair(
     target_doc.save(target_path)
 
     count = import_and_save_document_pair(
-        str(source_path),
-        str(target_path),
+        source_path,
+        target_path,
+        source_path.name,
+        target_path.name,
         db,
     )
 

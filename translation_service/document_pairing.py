@@ -1,4 +1,7 @@
 from collections.abc import Sequence
+
+from pathlib import Path
+
 from translation_service.docx_parser import extract_paragraphs
 from sqlalchemy.orm import Session
 from translation_service.models import DocumentPair, TranslationUnit
@@ -17,8 +20,8 @@ def pair_paragraphs(
 
 
 def import_document_pair(
-    source_file: str,
-    target_file: str,
+    source_file: str | Path,
+    target_file: str | Path,
 ) -> list[tuple[str, str]]:
     source_paragraphs = extract_paragraphs(source_file)
     target_paragraphs = extract_paragraphs(target_file)
@@ -58,18 +61,20 @@ def save_document_pairs(
 
 
 def import_and_save_document_pair(
-    source_file: str,
-    target_file: str,
+    source_path: str | Path,
+    target_path: str | Path,
+    source_filename: str,
+    target_filename: str,
     db: Session,
 ) -> int:
     pairs = import_document_pair(
-        source_file,
-        target_file,
+        source_path,
+        target_path,
     )
 
     return save_document_pairs(
-        source_file,
-        target_file,
+        source_filename,
+        target_filename,
         pairs,
         db,
     )

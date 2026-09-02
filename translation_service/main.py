@@ -5,6 +5,8 @@ from fastapi import FastAPI, File, HTTPException, UploadFile, Depends
 from translation_service.database import get_db, create_tables
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+
+from translation_service.document_pairing import import_and_save_document_pair
 from translation_service.models import TranslationUnit
 from tempfile import NamedTemporaryFile
 from translation_service.docx_parser import extract_paragraphs
@@ -113,3 +115,67 @@ async def parse_docx(
 
     finally:
         Path(temp_path).unlink(missing_ok=True)
+
+
+@app.post("/document-pairs/import")
+async def import_document_pair_endpoint(
+    source_file: UploadFile = File(...),
+    target_file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+):
+    if not source_file.filename or not target_file.filename:
+        raise HTTPException(
+            status_code=400,
+            detail="Both files must have filenames",
+        )
+
+    if not source_file.filename.lower().endswith(".docx"):
+        raise HTTPException(
+            status_code=400,
+            detail="Source file must be a DOCX document",
+        )
+
+    if not target_file.filename.lower().endswith(".docx"):
+        raise HTTPException(
+            status_code=400,
+            detail="Target file must be a DOCX document",
+        )
+
+    with NamedTemporaryFile(delete=False, suffix=".docx") as source_temp:
+        source_temp.write(await source_file.read())
+        source_path = source_temp.name
+
+    with NamedTemporaryFile(delete=False, suffix=".docx") as target_temp:
+        target_temp.write(await target_file.read())
+        target_path = target_temp.name
+
+    try:
+        imported_count = import_and_save_document_pair(
+            source_path,
+            target_path,
+            source_file.filename,
+            target_file.filename,
+            db,
+        )
+
+        return {
+            "source_document": source_file.filename,
+            "target_document": target_file.filename,
+            "imported_segments": imported_count,
+        }
+
+    except PackageNotFoundError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid DOCX file",
+        ) from exc
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=str(exc),
+        ) from exc
+
+    finally:
+        Path(source_path).unlink(missing_ok=True)
+        Path(target_path).unlink(missing_ok=True)
