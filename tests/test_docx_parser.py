@@ -14,7 +14,7 @@ def test_extract_paragraphs(tmp_path: Path) -> None:
     document.add_paragraph("Första stycket")
     document.add_paragraph("Andra stycket")
     document.save(str(doc_path))
-    paragraphs = extract_paragraphs(str(doc_path))
+    paragraphs = extract_paragraphs(doc_path)
 
     assert paragraphs == [
         "Rubrik",

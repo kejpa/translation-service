@@ -9,6 +9,7 @@ services:
 
     volumes:
       - .:/app
+      - venv:/app/.venv
 
     command:
       [
@@ -36,3 +37,4 @@ services:
 
 volumes:
   ollama_data_dev:
+  venv:
