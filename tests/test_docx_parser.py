@@ -2,7 +2,7 @@ from pathlib import Path
 
 from docx import Document
 
-from translation_service.docx_parser import extract_paragraphs
+from translation_service.docx_parser import extract_paragraphs, extract_all_paragraphs
 
 
 def test_extract_paragraphs(tmp_path: Path) -> None:
@@ -20,4 +20,24 @@ def test_extract_paragraphs(tmp_path: Path) -> None:
         "Rubrik",
         "Första stycket",
         "Andra stycket",
+    ]
+
+
+def test_extract_all_paragraphs_preserves_empty_paragraphs(
+    tmp_path,
+):
+    file_path = tmp_path / "test.docx"
+
+    document = Document()
+    document.add_paragraph("Hej")
+    document.add_paragraph("")
+    document.add_paragraph("Världen")
+    document.save(str(file_path))
+
+    paragraphs = extract_all_paragraphs(file_path)
+
+    assert paragraphs == [
+        "Hej",
+        "",
+        "Världen",
     ]

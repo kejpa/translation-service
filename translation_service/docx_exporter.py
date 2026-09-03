@@ -3,7 +3,7 @@ from pathlib import Path
 from docx import Document
 from sqlalchemy.orm import Session
 
-from translation_service.docx_parser import extract_paragraphs
+from translation_service.docx_parser import extract_all_paragraphs
 from translation_service.translation_memory import (
     find_exact_matches,
 )
@@ -53,7 +53,7 @@ def translate_document(
     output_file: Path,
     db: Session,
 ) -> None:
-    source_paragraphs = extract_paragraphs(source_file)
+    source_paragraphs = extract_all_paragraphs(source_file)
 
     translated_paragraphs = translate_paragraphs(
         source_paragraphs,
