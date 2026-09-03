@@ -17,11 +17,13 @@ Current features:
 - Pre-commit quality checks
 - Dependabot dependency monitoring
 - GHCR container publishing
+- DOCX document pair import
+- Translation memory stored in SQLite
+- Exact match lookup
+- Case-insensitive matching
+- All translations are returned for exact matches
 
 Planned features:
-
-- Translation memory
-- Exact match lookup
 - Fuzzy matching
 - Ollama translation backend
 - DOCX export
