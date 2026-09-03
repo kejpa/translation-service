@@ -162,7 +162,7 @@ def test_build_translated_document():
             ParagraphTranslation(
                 source_text="",
                 target_text="",
-                status=TranslationStatus.MISSING,
+                status=TranslationStatus.EMPTY,
             ),
             ParagraphTranslation(
                 source_text="Miten voit?",
@@ -178,4 +178,28 @@ def test_build_translated_document():
         "Hej världen",
         "",
         "Hur mår du?",
+    ]
+
+
+def test_build_translated_document_marks_missing_translations():
+    document = build_translated_document(
+        [
+            ParagraphTranslation(
+                source_text="Hei maailma",
+                target_text="Hej världen",
+                status=TranslationStatus.TRANSLATED,
+            ),
+            ParagraphTranslation(
+                source_text="Tuntematon teksti",
+                target_text="Tuntematon teksti",
+                status=TranslationStatus.MISSING,
+            ),
+        ]
+    )
+
+    paragraphs = [paragraph.text for paragraph in document.paragraphs]
+
+    assert paragraphs == [
+        "Hej världen",
+        "[UNTRANSLATED] Tuntematon teksti",
     ]

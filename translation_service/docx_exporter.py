@@ -27,13 +27,9 @@ def create_translated_docx(
     paragraphs: list[ParagraphTranslation],
     output_file: Path,
 ) -> None:
-    document = Document()
-
-    for paragraph in paragraphs:
-        if paragraph.status == TranslationStatus.MISSING:
-            document.add_paragraph(f"[UNTRANSLATED] {paragraph.source_text}")
-        else:
-            document.add_paragraph(paragraph.target_text)
+    document = build_translated_document(
+        paragraphs,
+    )
 
     document.save(str(output_file))
 
@@ -45,6 +41,15 @@ def translate_paragraphs(
     translated_paragraphs: list[ParagraphTranslation] = []
 
     for paragraph in source_paragraphs:
+        if paragraph == "":
+            translated_paragraphs.append(
+                ParagraphTranslation(
+                    source_text="",
+                    target_text="",
+                    status=TranslationStatus.EMPTY,
+                )
+            )
+            continue
         matches = find_exact_matches(
             paragraph,
             db,
@@ -96,6 +101,9 @@ def build_translated_document(
     document = Document()
 
     for paragraph in paragraphs:
-        document.add_paragraph(paragraph.target_text)
+        if paragraph.status == TranslationStatus.MISSING:
+            document.add_paragraph(f"[UNTRANSLATED] {paragraph.source_text}")
+        else:
+            document.add_paragraph(paragraph.target_text)
 
     return document
