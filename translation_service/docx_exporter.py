@@ -10,6 +10,16 @@ from translation_service.translation_memory import (
 from translation_service.translation_candidates import (
     select_translation_candidate,
 )
+from dataclasses import dataclass
+
+from translation_service.translation_status import TranslationStatus
+
+
+@dataclass
+class ParagraphTranslation:
+    source_text: str
+    target_text: str
+    status: TranslationStatus
 
 
 def create_translated_docx(
@@ -27,8 +37,8 @@ def create_translated_docx(
 def translate_paragraphs(
     source_paragraphs: list[str],
     db: Session,
-) -> list[str]:
-    translated_paragraphs: list[str] = []
+) -> list[ParagraphTranslation]:
+    translated_paragraphs: list[ParagraphTranslation] = []
 
     for paragraph in source_paragraphs:
         matches = find_exact_matches(
@@ -38,12 +48,22 @@ def translate_paragraphs(
 
         candidate = select_translation_candidate(matches)
 
-        if candidate:
-            translated_text = candidate.target_text
+        if candidate is not None:
+            translated_paragraphs.append(
+                ParagraphTranslation(
+                    source_text=paragraph,
+                    target_text=candidate.target_text,
+                    status=TranslationStatus.TRANSLATED,
+                )
+            )
         else:
-            translated_text = paragraph
-
-        translated_paragraphs.append(translated_text)
+            translated_paragraphs.append(
+                ParagraphTranslation(
+                    source_text=paragraph,
+                    target_text=paragraph,
+                    status=TranslationStatus.MISSING,
+                )
+            )
 
     return translated_paragraphs
 
@@ -55,12 +75,12 @@ def translate_document(
 ) -> None:
     source_paragraphs = extract_all_paragraphs(source_file)
 
-    translated_paragraphs = translate_paragraphs(
+    translations = translate_paragraphs(
         source_paragraphs,
         db,
     )
 
     create_translated_docx(
-        translated_paragraphs,
+        [translation.target_text for translation in translations],
         output_file,
     )

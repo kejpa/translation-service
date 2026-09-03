@@ -6,6 +6,7 @@ from translation_service.docx_exporter import (
     translate_document,
 )
 from translation_service.models import DocumentPair, TranslationUnit
+from translation_service.translation_status import TranslationStatus
 
 
 def test_create_translated_docx(tmp_path):
@@ -56,10 +57,11 @@ def test_translate_paragraphs(db):
         db,
     )
 
-    assert translated == [
-        "Hej världen",
-        "Tuntematon teksti",
-    ]
+    assert translated[0].target_text == "Hej världen"
+    assert translated[0].status == TranslationStatus.TRANSLATED
+
+    assert translated[1].target_text == "Tuntematon teksti"
+    assert translated[1].status == TranslationStatus.MISSING
 
 
 def test_translate_document(
