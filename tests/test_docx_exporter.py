@@ -4,6 +4,8 @@ from translation_service.docx_exporter import (
     create_translated_docx,
     translate_paragraphs,
     translate_document,
+    ParagraphTranslation,
+    build_translated_document,
 )
 from translation_service.models import DocumentPair, TranslationUnit
 from translation_service.translation_status import TranslationStatus
@@ -14,8 +16,16 @@ def test_create_translated_docx(tmp_path):
 
     create_translated_docx(
         [
-            "Hej världen",
-            "Hur mår du?",
+            ParagraphTranslation(
+                source_text="Hei maailma",
+                target_text="Hej världen",
+                status=TranslationStatus.TRANSLATED,
+            ),
+            ParagraphTranslation(
+                source_text="Miten voit?",
+                target_text="Hur mår du?",
+                status=TranslationStatus.TRANSLATED,
+            ),
         ],
         output_file,
     )
@@ -106,5 +116,66 @@ def test_translate_document(
 
     assert paragraphs == [
         "Hej världen",
-        "Tuntematon teksti",
+        "[UNTRANSLATED] Tuntematon teksti",
+    ]
+
+
+def test_create_translated_docx_marks_missing_translations(
+    tmp_path,
+):
+    output_file = tmp_path / "translated.docx"
+
+    create_translated_docx(
+        [
+            ParagraphTranslation(
+                source_text="Hei maailma",
+                target_text="Hej världen",
+                status=TranslationStatus.TRANSLATED,
+            ),
+            ParagraphTranslation(
+                source_text="Tuntematon teksti",
+                target_text="Tuntematon teksti",
+                status=TranslationStatus.MISSING,
+            ),
+        ],
+        output_file,
+    )
+
+    document = Document(str(output_file))
+
+    paragraphs = [paragraph.text for paragraph in document.paragraphs]
+
+    assert paragraphs == [
+        "Hej världen",
+        "[UNTRANSLATED] Tuntematon teksti",
+    ]
+
+
+def test_build_translated_document():
+    document = build_translated_document(
+        [
+            ParagraphTranslation(
+                source_text="Hei maailma",
+                target_text="Hej världen",
+                status=TranslationStatus.TRANSLATED,
+            ),
+            ParagraphTranslation(
+                source_text="",
+                target_text="",
+                status=TranslationStatus.MISSING,
+            ),
+            ParagraphTranslation(
+                source_text="Miten voit?",
+                target_text="Hur mår du?",
+                status=TranslationStatus.TRANSLATED,
+            ),
+        ]
+    )
+
+    paragraphs = [paragraph.text for paragraph in document.paragraphs]
+
+    assert paragraphs == [
+        "Hej världen",
+        "",
+        "Hur mår du?",
     ]

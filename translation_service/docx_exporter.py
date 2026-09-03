@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from docx.document import Document as DocxDocument
 from docx import Document
 from sqlalchemy.orm import Session
 
@@ -23,13 +24,16 @@ class ParagraphTranslation:
 
 
 def create_translated_docx(
-    paragraphs: list[str],
+    paragraphs: list[ParagraphTranslation],
     output_file: Path,
 ) -> None:
     document = Document()
 
     for paragraph in paragraphs:
-        document.add_paragraph(paragraph)
+        if paragraph.status == TranslationStatus.MISSING:
+            document.add_paragraph(f"[UNTRANSLATED] {paragraph.source_text}")
+        else:
+            document.add_paragraph(paragraph.target_text)
 
     document.save(str(output_file))
 
@@ -81,6 +85,17 @@ def translate_document(
     )
 
     create_translated_docx(
-        [translation.target_text for translation in translations],
+        translations,
         output_file,
     )
+
+
+def build_translated_document(
+    paragraphs: list[ParagraphTranslation],
+) -> DocxDocument:
+    document = Document()
+
+    for paragraph in paragraphs:
+        document.add_paragraph(paragraph.target_text)
+
+    return document
