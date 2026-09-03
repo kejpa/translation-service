@@ -31,7 +31,10 @@ def test_find_exact_matches(db):
         db,
     )
 
-    assert result == ["Hej världen"]
+    assert len(result) == 1
+
+    assert result[0].source_text == "Hei maailma"
+    assert result[0].target_text == "Hej världen"
 
 
 def test_returns_none_when_no_match_exists(db):
@@ -75,7 +78,13 @@ def test_returns_first_match_when_multiple_exist(db):
         db,
     )
 
-    assert result == ["Hej världen", "Hej världen version 2"]
+    assert len(result) == 2
+
+    assert result[0].source_text == "Hei maailma"
+    assert result[0].target_text == "Hej världen"
+
+    assert result[1].source_text == "Hei maailma"
+    assert result[1].target_text == "Hej världen version 2"
 
 
 def test_find_exact_matches_is_case_insensitive(db):
@@ -102,4 +111,7 @@ def test_find_exact_matches_is_case_insensitive(db):
         db,
     )
 
-    assert result == ["Hej världen"]
+    assert len(result) == 1
+
+    assert result[0].source_text == "Hei maailma"
+    assert result[0].target_text == "Hej världen"

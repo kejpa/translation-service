@@ -37,12 +37,14 @@ def test_exact_matches_endpoint_is_case_insensitive(db):
 
     assert response.status_code == 200
 
-    assert response.json() == {
-        "source_text": "hei maailma",
-        "matches": [
-            "Hej världen",
-        ],
-    }
+    payload = response.json()
+
+    assert payload["source_text"] == "hei maailma"
+
+    assert len(payload["matches"]) == 1
+
+    assert payload["matches"][0]["source_text"] == "Hei maailma"
+    assert payload["matches"][0]["target_text"] == "Hej världen"
 
 
 def test_exact_match_endpoint_is_case_insensitive_uppercase(db):
@@ -73,10 +75,14 @@ def test_exact_match_endpoint_is_case_insensitive_uppercase(db):
 
     assert response.status_code == 200
 
-    assert response.json() == {
-        "source_text": "HEI MAAILMA",
-        "matches": ["Hej världen"],
-    }
+    payload = response.json()
+
+    assert payload["source_text"] == "HEI MAAILMA"
+
+    assert len(payload["matches"]) == 1
+
+    assert payload["matches"][0]["source_text"] == "Hei maailma"
+    assert payload["matches"][0]["target_text"] == "Hej världen"
 
 
 def test_exact_match_endpoint_returns_null_when_not_found(db):
@@ -89,7 +95,10 @@ def test_exact_match_endpoint_returns_null_when_not_found(db):
 
     assert response.status_code == 200
 
-    assert response.json() == {
-        "source_text": "Finns inte",
-        "matches": [],
-    }
+    payload = response.json()
+
+    assert payload["source_text"] == "Finns inte"
+
+    assert len(payload["matches"]) == 0
+
+    assert payload["matches"] == []
