@@ -74,8 +74,8 @@ The DOCX import layer is responsible for:
 
 - Reading DOCX documents
 - Extracting paragraphs
-- Ignoring empty paragraphs
 - Preserving paragraph order
+- Preserving empty paragraphs where required by the workflow
 - Pairing Finnish and Swedish documents
 
 The import layer does not perform any translation.
@@ -86,20 +86,21 @@ The import layer does not perform any translation.
 
 Translation Memory is stored in SQLite.
 
-Each translation unit contains:
+Translation units are linked to a document pair.
+
+DocumentPair:
+
+```text
+source_document
+target_document
+```
+
+TranslationUnit:
 
 ```text
 source_text
 target_text
-source_document
-```
-
-Example:
-
-```text
-source_text     = "Hei maailma"
-target_text     = "Hej världen"
-source_document = "manual_fi.docx"
+document_pair_id
 ```
 
 Translation units are imported from paired source and target documents.
@@ -309,7 +310,6 @@ Planned features include:
 - Translation confidence scoring
 - Ollama fallback translation
 - Batch document import
-- DOCX export
 - Translation review workflow
 - Translation Memory maintenance tools
 

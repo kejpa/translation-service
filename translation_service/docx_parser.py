@@ -14,3 +14,11 @@ def extract_paragraphs(file_path: Path) -> list[str]:
         for paragraph in document.paragraphs
         if paragraph.text.strip()
     ]
+
+
+def extract_all_paragraphs(
+    file_path: Path,
+) -> list[str]:
+    document = Document(str(file_path))
+
+    return [paragraph.text for paragraph in document.paragraphs]

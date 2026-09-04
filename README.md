@@ -1,8 +1,22 @@
 # Translation Service
 
-A local translation service built with FastAPI, SQLite and Ollama.
+A local Translation Memory service built with FastAPI, SQLite and Ollama.
 
 The goal of the project is to provide a self-hosted translation workflow for DOCX documents with translation memory support and local LLM-powered translation assistance.
+
+## Workflow
+
+```text
+DOCX Pair
+    ↓
+Import
+    ↓
+Translation Memory
+    ↓
+Exact Match Lookup
+    ↓
+Translated DOCX Export
+```
 
 ## Features
 
@@ -21,12 +35,12 @@ Current features:
 - Translation memory stored in SQLite
 - Exact match lookup
 - Case-insensitive matching
-- All translations are returned for exact matches
+- Exact match lookup returns all matching translations
+- DOCX export
 
 Planned features:
 - Fuzzy matching
 - Ollama translation backend
-- DOCX export
 - Translation approval workflow
 
 ## Requirements
@@ -47,11 +61,11 @@ Start the development container:
 docker compose -f docker-compose.dev.yaml up
 ```
 
-### Features:
+### Features
 
-Hot reload enabled
-Source code mounted into the container
-No image rebuild required after code changes
+- Hot reload enabled
+- Source code mounted into the container
+- No image rebuild required after code changes
 
 ### API documentation:
 
@@ -94,6 +108,7 @@ Example configuration can be found in:
 
 Important settings:
 
+```text
 DATABASE_URL
 PORT
 OLLAMA_BASE_URL
@@ -101,6 +116,7 @@ OLLAMA_MODEL
 MAX_CHUNK_SIZE
 TEMPERATURE
 LOG_LEVEL
+```
 
 ## Versioning
 
@@ -128,3 +144,7 @@ git push origin v0.1.0
 ## License
 
 MIT
+
+## Documentation
+
+- Architecture: [./docs/architecture.md]()

@@ -7,7 +7,7 @@ from translation_service.models import TranslationUnit
 def find_exact_matches(
     source_text: str,
     db: Session,
-) -> list[str]:
+) -> list[TranslationUnit]:
     results = (
         db.query(TranslationUnit)
         .filter(func.lower(TranslationUnit.source_text) == source_text.lower())
@@ -15,4 +15,4 @@ def find_exact_matches(
         .all()
     )
 
-    return [result.target_text for result in results]
+    return results
