@@ -8,6 +8,7 @@ Translation Service provides a REST API for:
 - DOCX parsing
 - Import of paired translation documents
 - Translation memory exact match lookup
+- DOCX translation and export
 
 Base URL:
 
@@ -29,8 +30,10 @@ Returns basic service information.
 
 ```json
 {
-  "name": "Translation Service",
-  "version": "0.1.0"
+  "service": "translation-service",
+  "version": "0.1.0",
+  "status": "running",
+  "docker": "running"
 }
 ```
 
@@ -127,7 +130,12 @@ GET /translations/exact?source_text=Hei maailma
 {
   "source_text": "Hei maailma",
   "matches": [
-    "Hej världen"
+    {
+      "id": 1,
+      "document_pair_id": 1,
+      "source_text": "Hei maailma",
+      "target_text": "Hej världen"
+    }
   ]
 }
 ```
@@ -140,6 +148,43 @@ GET /translations/exact?source_text=Hei maailma
   "matches": []
 }
 ```
+## POST /docx/translate
+
+Translates a DOCX document using Translation Memory.
+
+### Request
+
+Multipart form upload:
+
+| Field | Type |
+|---------|---------|
+| file | DOCX |
+| output_filename | string (optional) |
+
+### Success Response
+
+Returns a generated DOCX file.
+
+### Behaviour
+
+- Exact Translation Memory matches are reused
+- Matching is case-insensitive
+- Empty paragraphs are preserved
+- Paragraph order is preserved
+- Missing translations are marked as:
+
+```text
+[UNTRANSLATED] Original text
+```
+
+### Error Responses
+
+| Status | Meaning |
+|---------|---------|
+| 400 | Filename is missing |
+| 400 | Only DOCX files are supported |
+| 422 | Invalid DOCX file |
+| 500 | Failed to translate document |
 
 ## Design Decisions
 
@@ -159,6 +204,39 @@ are treated as the same source segment.
 
 ### Multiple matches
 
-The API returns all exact matches rather than a single translation.
+The API returns all matching TranslationUnits rather than only translated text.
 
-This allows future fuzzy matching and context-aware ranking to evaluate all candidate translations instead of arbitrarily selecting one.
+This allows future ranking, fuzzy matching and context-based selection algorithms
+to evaluate all available candidates.
+
+### Empty paragraphs
+
+Empty paragraphs are preserved during document translation and export.
+
+Example:
+
+```text
+Paragraph 1
+
+Paragraph 3
+```
+
+remains:
+
+```text
+Paragraph 1
+
+Paragraph 3
+```
+
+### Missing translations
+
+Paragraphs without a Translation Memory match are preserved and marked.
+
+Example:
+
+```text
+[UNTRANSLATED] Tuntematon teksti
+```
+
+This allows users to identify untranslated content in generated documents.
