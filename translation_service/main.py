@@ -1,12 +1,15 @@
 from pathlib import Path
 import tomllib
 
-from fastapi import FastAPI, File, HTTPException, UploadFile, Depends
+from fastapi import FastAPI, File, HTTPException, UploadFile, Depends, Form
+from starlette.responses import FileResponse
+
 from translation_service.database import get_db, create_tables
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from translation_service.document_pairing import import_and_save_document_pair
+from translation_service.docx_exporter import translate_document
 from translation_service.models import TranslationUnit
 from tempfile import NamedTemporaryFile
 from translation_service.docx_parser import extract_paragraphs
@@ -71,53 +74,6 @@ def get_translation_units(
     ]
 
 
-@app.post("/docx/parse")
-async def parse_docx(
-    file: UploadFile = File(...),
-):
-    if not file.filename:
-        raise HTTPException(
-            status_code=400,
-            detail="Filename is missing",
-        )
-
-    if not file.filename.lower().endswith(".docx"):
-        raise HTTPException(
-            status_code=400,
-            detail="Only DOCX files are supported",
-        )
-
-    with NamedTemporaryFile(
-        delete=False,
-        suffix=".docx",
-    ) as temp_file:
-        temp_file.write(await file.read())
-        temp_path = Path(temp_file.name)
-
-    try:
-        paragraphs = extract_paragraphs(temp_path)
-
-        return {
-            "paragraph_count": len(paragraphs),
-            "paragraphs": paragraphs,
-        }
-
-    except PackageNotFoundError:
-        raise HTTPException(
-            status_code=422,
-            detail="Invalid DOCX file",
-        )
-
-    except Exception:
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to parse document",
-        )
-
-    finally:
-        Path(temp_path).unlink(missing_ok=True)
-
-
 @app.post("/document-pairs/import")
 async def import_document_pair_endpoint(
     source_file: UploadFile = File(...),
@@ -180,6 +136,121 @@ async def import_document_pair_endpoint(
     finally:
         Path(source_path).unlink(missing_ok=True)
         Path(target_path).unlink(missing_ok=True)
+
+
+@app.post("/docx/parse")
+async def parse_docx(
+    file: UploadFile = File(...),
+):
+    if not file.filename:
+        raise HTTPException(
+            status_code=400,
+            detail="Filename is missing",
+        )
+
+    if not file.filename.lower().endswith(".docx"):
+        raise HTTPException(
+            status_code=400,
+            detail="Only DOCX files are supported",
+        )
+
+    with NamedTemporaryFile(
+        delete=False,
+        suffix=".docx",
+    ) as temp_file:
+        temp_file.write(await file.read())
+        temp_path = Path(temp_file.name)
+
+    try:
+        paragraphs = extract_paragraphs(temp_path)
+
+        return {
+            "paragraph_count": len(paragraphs),
+            "paragraphs": paragraphs,
+        }
+
+    except PackageNotFoundError:
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid DOCX file",
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to parse document",
+        )
+
+    finally:
+        Path(temp_path).unlink(missing_ok=True)
+
+
+@app.post("/docx/translate")
+async def translate_docx(
+    file: UploadFile = File(...),
+    output_filename: str = Form("translated.docx"),
+    db: Session = Depends(get_db),
+):
+    if not file.filename:
+        raise HTTPException(
+            status_code=400,
+            detail="Filename is missing",
+        )
+
+    if not file.filename.lower().endswith(".docx"):
+        raise HTTPException(
+            status_code=400,
+            detail="Only DOCX files are supported",
+        )
+
+    with NamedTemporaryFile(
+        delete=False,
+        suffix=".docx",
+    ) as temp_file:
+        temp_file.write(await file.read())
+        temp_path = Path(temp_file.name)
+
+    with NamedTemporaryFile(
+        delete=False,
+        suffix=".docx",
+    ) as output_file:
+        output_path = Path(output_file.name)
+
+    try:
+        translate_document(
+            temp_path,
+            output_path,
+            db,
+        )
+
+        return FileResponse(
+            path=output_path,
+            media_type=(
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ),
+            filename=output_filename,
+        )
+
+    except PackageNotFoundError:
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid DOCX file",
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to translate document",
+        )
+
+    finally:
+        temp_path.unlink(missing_ok=True)
+
+
+# TODO:
+# Remove generated output files after response
+# has been sent to the client.
+##        output_path.unlink(missing_ok=True)
 
 
 @app.get("/translations/exact")
