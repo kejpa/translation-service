@@ -1,11 +1,11 @@
 from docx import Document
 
 from translation_service.docx_exporter import (
-    create_translated_docx,
-    translate_paragraphs,
-    translate_document,
     ParagraphTranslation,
     build_translated_document,
+    create_translated_docx,
+    translate_document,
+    translate_paragraphs,
 )
 from translation_service.models import DocumentPair, TranslationUnit
 from translation_service.translation_status import TranslationStatus

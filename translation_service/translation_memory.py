@@ -1,5 +1,5 @@
-from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 from translation_service.models import TranslationUnit
 

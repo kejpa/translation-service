@@ -2,7 +2,7 @@ from pathlib import Path
 
 from docx import Document
 
-from translation_service.docx_parser import extract_paragraphs, extract_all_paragraphs
+from translation_service.docx_parser import extract_all_paragraphs, extract_paragraphs
 
 
 def test_extract_paragraphs(tmp_path: Path) -> None:

@@ -1,18 +1,17 @@
+from dataclasses import dataclass
 from pathlib import Path
 
-from docx.document import Document as DocxDocument
 from docx import Document
+from docx.document import Document as DocxDocument
 from sqlalchemy.orm import Session
 
 from translation_service.docx_parser import extract_all_paragraphs
-from translation_service.translation_memory import (
-    find_exact_matches,
-)
 from translation_service.translation_candidates import (
     select_translation_candidate,
 )
-from dataclasses import dataclass
-
+from translation_service.translation_memory import (
+    find_exact_matches,
+)
 from translation_service.translation_status import TranslationStatus
 
 
