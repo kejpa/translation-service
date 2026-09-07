@@ -13,6 +13,7 @@ from translation_service.database import create_tables, get_db
 from translation_service.document_pairing import import_and_save_document_pair
 from translation_service.docx_exporter import translate_document, translate_paragraphs
 from translation_service.docx_parser import extract_all_paragraphs, extract_paragraphs
+from translation_service.fuzzy_search import find_fuzzy_matches
 from translation_service.models import TranslationUnit
 from translation_service.translation_memory import find_exact_matches
 from translation_service.translation_statistics import calculate_translation_statistics
@@ -304,3 +305,28 @@ async def translation_statistics(
 
     finally:
         temp_path.unlink(missing_ok=True)
+
+
+@app.get("/translations/fuzzy")
+def fuzzy_matches(
+    source_text: str,
+    db: Session = Depends(get_db),
+):
+    matches = find_fuzzy_matches(
+        source_text,
+        db,
+    )
+
+    return {
+        "source_text": source_text,
+        "matches": [
+            {
+                "id": match.translation_unit.id,
+                "document_pair_id": (match.translation_unit.document_pair_id),
+                "source_text": (match.translation_unit.source_text),
+                "target_text": (match.translation_unit.target_text),
+                "score": match.score,
+            }
+            for match in matches
+        ],
+    }

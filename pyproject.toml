@@ -12,6 +12,7 @@ dependencies = [
     "pydantic",
     "python-docx>=1.2.0",
     "python-multipart>=0.0.32",
+    "rapidfuzz>=3.14.6",
 ]
 
 [build-system]
