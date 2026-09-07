@@ -9,6 +9,7 @@ Translation Service provides a REST API for:
 - Import of paired translation documents
 - Translation memory exact match lookup
 - DOCX translation and export
+- Translation statistics
 
 Base URL:
 
@@ -21,6 +22,9 @@ Swagger UI:
 ```text
 http://localhost:8000/docs
 ```
+## Related Documentation
+
+- Architecture: [architecture.md]()
 
 ## GET /
 
@@ -31,7 +35,7 @@ Returns basic service information.
 ```json
 {
   "service": "translation-service",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "running",
   "docker": "running"
 }
@@ -167,7 +171,7 @@ Returns a generated DOCX file.
 
 ### Behaviour
 
-- Exact Translation Memory matches are reused
+- - Exact Translation Memory matches are reused when available
 - Matching is case-insensitive
 - Empty paragraphs are preserved
 - Paragraph order is preserved
@@ -185,6 +189,49 @@ Returns a generated DOCX file.
 | 400 | Only DOCX files are supported |
 | 422 | Invalid DOCX file |
 | 500 | Failed to translate document |
+
+## POST /docx/statistics
+
+Calculates translation statistics for a DOCX document.
+
+Currently, fuzzy_high and fuzzy_low are always zero.
+These fields are reserved for future fuzzy matching support.
+
+### Request
+
+Multipart form upload:
+
+| Field | Type |
+|---------|---------|
+| file | DOCX |
+
+### Success Response
+
+```json
+{
+  "total_paragraphs": 145,
+  "translated": 98,
+  "fuzzy_high": 0,
+  "fuzzy_low": 0,
+  "missing": 22,
+  "empty": 5
+}
+```
+
+### Notes
+
+- Statistics are calculated on demand
+- Statistics are not stored in the database
+- Empty paragraphs are included in the statistics
+
+### Error Responses
+
+| Status | Meaning |
+|---------|---------|
+| 400 | Filename is missing |
+| 400 | Only DOCX files are supported |
+| 422 | Invalid DOCX file |
+| 500 | Failed to calculate statistics |
 
 ## Design Decisions
 

@@ -2,7 +2,38 @@
 
 A local Translation Memory service built with FastAPI, SQLite and Ollama.
 
+The project provides DOCX import, translation memory management, document translation, translation statistics and future AI-assisted translation through Ollama.
+
 The goal of the project is to provide a self-hosted translation workflow for DOCX documents with translation memory support and local LLM-powered translation assistance.
+
+## Features
+
+Current features:
+
+- FastAPI REST API
+- SQLite database backend
+- DOCX document parsing
+- DOCX document pair import
+- DOCX document translation
+- DOCX document export
+- Translation memory stored in SQLite
+- Exact match lookup
+- Case-insensitive matching
+- Exact match lookup returns all matching translations
+- Translation statistics
+- Empty paragraph preservation
+- Translation status tracking
+- Docker-based development environment
+- Docker-based production deployment
+- Automated testing with pytest
+- Pre-commit quality checks
+- Dependabot dependency monitoring
+- GHCR container publishing
+
+Planned features:
+- Fuzzy matching
+- Ollama translation backend
+- Translation approval workflow
 
 ## Workflow
 
@@ -15,33 +46,10 @@ Translation Memory
     ↓
 Exact Match Lookup
     ↓
-Translated DOCX Export
+Document Translation
+    ↓
+DOCX Export
 ```
-
-## Features
-
-Current features:
-
-- FastAPI REST API
-- SQLite database backend
-- DOCX document parsing
-- Docker-based development environment
-- Docker-based production deployment
-- Automated testing with pytest
-- Pre-commit quality checks
-- Dependabot dependency monitoring
-- GHCR container publishing
-- DOCX document pair import
-- Translation memory stored in SQLite
-- Exact match lookup
-- Case-insensitive matching
-- Exact match lookup returns all matching translations
-- DOCX export
-
-Planned features:
-- Fuzzy matching
-- Ollama translation backend
-- Translation approval workflow
 
 ## Requirements
 
@@ -70,6 +78,15 @@ docker compose -f docker-compose.dev.yaml up
 ### API documentation:
 
 http://localhost:8000/docs
+
+Available endpoints include:
+
+- /health
+- /docx/parse
+- /document-pairs/import
+- /translations/exact
+- /docx/translate
+- /docx/statistics
 
 ## Production-like Environment
 
@@ -148,3 +165,4 @@ MIT
 ## Documentation
 
 - Architecture: [./docs/architecture.md]()
+- API documentation: [./docs/api.md]()

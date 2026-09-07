@@ -14,7 +14,7 @@ The system is designed to:
 
 The architecture follows a layered design where API endpoints, business logic, persistence, and AI integration are clearly separated.
 
----
+
 
 ## High-Level Architecture
 
@@ -43,7 +43,7 @@ The architecture follows a layered design where API endpoints, business logic, p
 +--------------+
 ```
 
----
+
 
 ## Components
 
@@ -61,12 +61,13 @@ Examples:
 
 ```text
 /health
-/translation-units
+/document-pairs/import
 /translations/exact
-/docx/import-pair
+/docx/parse
+/docx/translate
+/docx/statistics
 ```
 
----
 
 ### DOCX Import
 
@@ -75,12 +76,29 @@ The DOCX import layer is responsible for:
 - Reading DOCX documents
 - Extracting paragraphs
 - Preserving paragraph order
-- Preserving empty paragraphs where required by the workflow
+- Preserving empty paragraphs
 - Pairing Finnish and Swedish documents
 
 The import layer does not perform any translation.
 
----
+### DOCX Translation and Export
+
+The DOCX translation layer is responsible for:
+
+- Translating paragraphs using Translation Memory
+- Preserving document structure
+- Preserving paragraph order
+- Preserving empty paragraphs
+- Marking untranslated content
+- Generating translated DOCX documents
+
+Translation status values:
+
+```text
+TRANSLATED
+MISSING
+EMPTY
+```
 
 ### Translation Memory
 
@@ -105,7 +123,7 @@ document_pair_id
 
 Translation units are imported from paired source and target documents.
 
----
+
 
 ### Database Layer
 
@@ -123,7 +141,7 @@ Responsibilities:
 - Provide transaction handling
 - Keep application code database-agnostic
 
----
+
 
 ### Search Layer
 
@@ -141,7 +159,22 @@ Planned capabilities:
 
 The search layer does not perform machine translation.
 
----
+### Translation Statistics
+
+Translation statistics are calculated on demand.
+
+Current statistics:
+
+```text
+total_paragraphs
+translated
+fuzzy_high
+fuzzy_low
+missing
+empty
+```
+
+Statistics are not persisted in the database.
 
 ### Ollama Integration
 
@@ -169,7 +202,7 @@ Exact Match
  TM Result Ollama
 ```
 
----
+
 
 ## Deployment Architecture
 
@@ -203,7 +236,7 @@ Developer
  Ollama
 ```
 
----
+
 
 ### Production
 
@@ -232,7 +265,7 @@ FastAPI
 SQLite   Ollama
 ```
 
----
+
 
 ## Testing Strategy
 
@@ -258,7 +291,7 @@ SQLite in-memory
 
 Every test starts with a clean schema.
 
----
+
 
 ## Design Principles
 
@@ -268,7 +301,7 @@ All processing occurs locally.
 
 No external cloud services are required.
 
----
+
 
 ### Translation Memory First
 
@@ -280,9 +313,10 @@ Priority:
 1. Exact Match
 2. Fuzzy Match
 3. Ollama
+4. Missing Translation
 ```
 
----
+
 
 ### Separation of Concerns
 
@@ -300,20 +334,20 @@ AI Integration
 
 Each layer should depend only on the layer directly beneath it.
 
----
+
 
 ## Future Enhancements
 
 Planned features include:
 
 - Fuzzy matching
-- Translation confidence scoring
+- Fuzzy confidence scoring
+- Context-aware candidate ranking
 - Ollama fallback translation
 - Batch document import
 - Translation review workflow
 - Translation Memory maintenance tools
 
----
 
 ## Technology Stack
 
