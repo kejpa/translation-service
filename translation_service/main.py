@@ -9,14 +9,16 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from translation_service.document_pairing import import_and_save_document_pair
-from translation_service.docx_exporter import translate_document
+from translation_service.docx_exporter import translate_document, translate_paragraphs
 from translation_service.models import TranslationUnit
 from tempfile import NamedTemporaryFile
-from translation_service.docx_parser import extract_paragraphs
+from translation_service.docx_parser import extract_paragraphs, extract_all_paragraphs
 
 from docx.opc.exceptions import PackageNotFoundError
 
 from translation_service.translation_memory import find_exact_matches
+from translation_service.translation_statistics import calculate_translation_statistics
+from dataclasses import asdict
 
 VERSION = Path("VERSION").read_text(encoding="utf-8").strip()
 
@@ -267,3 +269,59 @@ def get_exact_matches(
         "source_text": source_text,
         "matches": translations,
     }
+
+
+@app.post("/docx/statistics")
+async def translation_statistics(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+):
+    if not file.filename:
+        raise HTTPException(
+            status_code=400,
+            detail="Filename is missing",
+        )
+
+    if not file.filename.lower().endswith(".docx"):
+        raise HTTPException(
+            status_code=400,
+            detail="Only DOCX files are supported",
+        )
+
+    with NamedTemporaryFile(
+        delete=False,
+        suffix=".docx",
+    ) as temp_file:
+        temp_file.write(await file.read())
+        temp_path = Path(temp_file.name)
+
+    try:
+        source_paragraphs = extract_all_paragraphs(
+            temp_path,
+        )
+
+        translations = translate_paragraphs(
+            source_paragraphs,
+            db,
+        )
+
+        statistics = calculate_translation_statistics(
+            translations,
+        )
+
+        return asdict(statistics)
+
+    except PackageNotFoundError:
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid DOCX file",
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to calculate statistics",
+        )
+
+    finally:
+        temp_path.unlink(missing_ok=True)
