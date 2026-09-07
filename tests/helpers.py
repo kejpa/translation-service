@@ -1,6 +1,7 @@
 from io import BytesIO
 
 from docx import Document
+
 from translation_service.models import DocumentPair, TranslationUnit
 
 

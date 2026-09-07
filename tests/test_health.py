@@ -2,7 +2,6 @@ from fastapi.testclient import TestClient
 
 from translation_service.main import app
 
-
 client = TestClient(app)
 
 

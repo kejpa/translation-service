@@ -1,13 +1,12 @@
 import pytest
-
-from translation_service.document_pairing import (
-    pair_paragraphs,
-    import_document_pair,
-    save_document_pairs,
-    import_and_save_document_pair,
-)
 from docx import Document
 
+from translation_service.document_pairing import (
+    import_and_save_document_pair,
+    import_document_pair,
+    pair_paragraphs,
+    save_document_pairs,
+)
 from translation_service.models import DocumentPair, TranslationUnit
 
 

@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy import create_engine, StaticPool
+from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import sessionmaker
 
 from translation_service.database import get_db

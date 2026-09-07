@@ -1,24 +1,21 @@
-from pathlib import Path
 import tomllib
-
-from fastapi import FastAPI, File, HTTPException, UploadFile, Depends, Form
-from starlette.responses import FileResponse
-
-from translation_service.database import get_db, create_tables
-from sqlalchemy import text
-from sqlalchemy.orm import Session
-
-from translation_service.document_pairing import import_and_save_document_pair
-from translation_service.docx_exporter import translate_document, translate_paragraphs
-from translation_service.models import TranslationUnit
+from dataclasses import asdict
+from pathlib import Path
 from tempfile import NamedTemporaryFile
-from translation_service.docx_parser import extract_paragraphs, extract_all_paragraphs
 
 from docx.opc.exceptions import PackageNotFoundError
+from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+from starlette.responses import FileResponse
 
+from translation_service.database import create_tables, get_db
+from translation_service.document_pairing import import_and_save_document_pair
+from translation_service.docx_exporter import translate_document, translate_paragraphs
+from translation_service.docx_parser import extract_all_paragraphs, extract_paragraphs
+from translation_service.models import TranslationUnit
 from translation_service.translation_memory import find_exact_matches
 from translation_service.translation_statistics import calculate_translation_statistics
-from dataclasses import asdict
 
 VERSION = Path("VERSION").read_text(encoding="utf-8").strip()
 
@@ -177,12 +174,6 @@ async def parse_docx(
             detail="Invalid DOCX file",
         )
 
-    except Exception:
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to parse document",
-        )
-
     finally:
         Path(temp_path).unlink(missing_ok=True)
 
@@ -237,12 +228,6 @@ async def translate_docx(
         raise HTTPException(
             status_code=422,
             detail="Invalid DOCX file",
-        )
-
-    except Exception:
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to translate document",
         )
 
     finally:
@@ -315,12 +300,6 @@ async def translation_statistics(
         raise HTTPException(
             status_code=422,
             detail="Invalid DOCX file",
-        )
-
-    except Exception:
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to calculate statistics",
         )
 
     finally:

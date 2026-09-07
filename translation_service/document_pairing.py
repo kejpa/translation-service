@@ -1,9 +1,9 @@
 from collections.abc import Sequence
-
 from pathlib import Path
 
-from translation_service.docx_parser import extract_paragraphs
 from sqlalchemy.orm import Session
+
+from translation_service.docx_parser import extract_paragraphs
 from translation_service.models import DocumentPair, TranslationUnit
 
 
