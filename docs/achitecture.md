@@ -61,11 +61,12 @@ Examples:
 
 ```text
 /health
+/docx/parse
+/docx/statistics
+/docx/translate
 /document-pairs/import
 /translations/exact
-/docx/parse
-/docx/translate
-/docx/statistics
+/translations/fuzzy
 ```
 
 
@@ -96,6 +97,8 @@ Translation status values:
 
 ```text
 TRANSLATED
+FUZZY_HIGH
+FUZZY_LOW
 MISSING
 EMPTY
 ```
@@ -150,12 +153,13 @@ The search layer provides Translation Memory lookup.
 Current capabilities:
 
 - Exact match lookup
+- Fuzzy match lookup
+- Similarity scoring
+- Candidate ranking
 
 Planned capabilities:
 
-- Fuzzy matching
-- Similarity ranking
-- Match scoring
+- Context-aware ranking
 
 The search layer does not perform machine translation.
 
@@ -197,6 +201,14 @@ Exact Match
       Found?
       /    \
     Yes    No
+     |      |
+     |      v
+     |   Fuzzy Match
+     |      |
+     |   Score?
+     |      |
+     |      v
+     | Reuse / Reference
      |      |
      v      v
  TM Result Ollama
@@ -311,9 +323,10 @@ Priority:
 
 ```text
 1. Exact Match
-2. Fuzzy Match
-3. Ollama
-4. Missing Translation
+2. High-Confidence Fuzzy Match
+3. Low-Confidence Fuzzy Match
+4. Ollama
+5. Missing Translation
 ```
 
 
@@ -340,8 +353,7 @@ Each layer should depend only on the layer directly beneath it.
 
 Planned features include:
 
-- Fuzzy matching
-- Fuzzy confidence scoring
+- Advanced fuzzy confidence tuning
 - Context-aware candidate ranking
 - Ollama fallback translation
 - Batch document import

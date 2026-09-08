@@ -8,6 +8,7 @@ Translation Service provides a REST API for:
 - DOCX parsing
 - Import of paired translation documents
 - Translation memory exact match lookup
+- Translation memory fuzzy match lookup
 - DOCX translation and export
 - Translation statistics
 
@@ -35,7 +36,7 @@ Returns basic service information.
 ```json
 {
   "service": "translation-service",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "status": "running",
   "docker": "running"
 }
@@ -49,7 +50,9 @@ Returns service health status.
 
 ```json
 {
-  "status": "ok"
+  "status": "running",
+  "database": "connected",
+  "docker": "running"
 }
 ```
 
@@ -171,7 +174,9 @@ Returns a generated DOCX file.
 
 ### Behaviour
 
-- - Exact Translation Memory matches are reused when available
+- Exact Translation Memory matches are reused when available
+- High-confidence fuzzy matches are reused automatically
+- Low-confidence fuzzy matches are tracked separately in translation statistics
 - Matching is case-insensitive
 - Empty paragraphs are preserved
 - Paragraph order is preserved
@@ -194,9 +199,6 @@ Returns a generated DOCX file.
 
 Calculates translation statistics for a DOCX document.
 
-Currently, fuzzy_high and fuzzy_low are always zero.
-These fields are reserved for future fuzzy matching support.
-
 ### Request
 
 Multipart form upload:
@@ -209,12 +211,12 @@ Multipart form upload:
 
 ```json
 {
-  "total_paragraphs": 145,
-  "translated": 98,
-  "fuzzy_high": 0,
-  "fuzzy_low": 0,
-  "missing": 22,
-  "empty": 5
+  "total_paragraphs": 20,
+  "translated": 10,
+  "fuzzy_high": 5,
+  "fuzzy_low": 3,
+  "missing": 0,
+  "empty": 2
 }
 ```
 
@@ -233,6 +235,48 @@ Multipart form upload:
 | 422 | Invalid DOCX file |
 | 500 | Failed to calculate statistics |
 
+## GET /translations/fuzzy
+
+Returns fuzzy Translation Memory matches for a source segment.
+
+Matching is case-insensitive.
+
+### Request
+
+```text
+GET /translations/fuzzy?source_text=Hei maailma
+```
+
+### Response
+
+```json
+{
+  "source_text": "Hei maailma",
+  "matches": [
+    {
+      "id": 1,
+      "document_pair_id": 1,
+      "source_text": "Hei maailma",
+      "target_text": "Hej världen",
+      "score": 100.0
+    },
+    {
+      "id": 2,
+      "document_pair_id": 1,
+      "source_text": "Hei maailmaa",
+      "target_text": "Hej världen!",
+      "score": 95.6
+    }
+  ]
+}
+```
+
+### Notes
+
+- Results are sorted by descending score
+- Scores are generated using RapidFuzz
+- Exact matches receive the highest score
+
 ## Design Decisions
 
 ### Exact matching
@@ -248,6 +292,26 @@ HEI MAAILMA
 ```
 
 are treated as the same source segment.
+
+### Fuzzy Matching
+
+Fuzzy matching is performed using RapidFuzz.
+
+Translation workflow priority:
+
+```text
+1. Exact Match
+2. Fuzzy High
+3. Fuzzy Low
+4. Missing
+```
+
+Fuzzy matches are evaluated using configurable thresholds:
+
+```text
+REUSE_THRESHOLD
+REFERENCE_THRESHOLD
+```
 
 ### Multiple matches
 

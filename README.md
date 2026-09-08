@@ -23,6 +23,9 @@ Current features:
 - Translation statistics
 - Empty paragraph preservation
 - Translation status tracking
+- Fuzzy matching using RapidFuzz
+- Configurable reuse threshold
+- Configurable reference threshold
 - Docker-based development environment
 - Docker-based production deployment
 - Automated testing with pytest
@@ -31,7 +34,6 @@ Current features:
 - GHCR container publishing
 
 Planned features:
-- Fuzzy matching
 - Ollama translation backend
 - Translation approval workflow
 
@@ -44,12 +46,17 @@ Import
     ↓
 Translation Memory
     ↓
-Exact Match Lookup
+Exact Match
+    ↓
+Fuzzy Match
     ↓
 Document Translation
     ↓
+Statistics
+    ↓
 DOCX Export
 ```
+
 
 ## Requirements
 
@@ -83,10 +90,11 @@ Available endpoints include:
 
 - /health
 - /docx/parse
+- /docx/statistics
+- /docx/translate
 - /document-pairs/import
 - /translations/exact
-- /docx/translate
-- /docx/statistics
+- /translations/fuzzy
 
 ## Production-like Environment
 
@@ -133,17 +141,30 @@ OLLAMA_MODEL
 MAX_CHUNK_SIZE
 TEMPERATURE
 LOG_LEVEL
+REUSE_THRESHOLD
+REFERENCE_THRESHOLD
 ```
+### Fuzzy Matching Configuration
+
+```text
+REUSE_THRESHOLD=85
+REFERENCE_THRESHOLD=30
+```
+
+- REUSE_THRESHOLD controls when a fuzzy match is automatically reused.
+- REFERENCE_THRESHOLD controls when a fuzzy match is classified as a low-confidence reference.
 
 ## Versioning
 
 The VERSION file is the single source of truth for the application version.
 
 Release builds are created from tagged commits:
+
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
+
 
 ## Technology Stack
 - FastAPI
@@ -164,5 +185,5 @@ MIT
 
 ## Documentation
 
-- Architecture: [./docs/architecture.md]()
-- API documentation: [./docs/api.md]()
+- Architecture: [docs/architecture.md]()
+- API documentation: [docs/api.md]()

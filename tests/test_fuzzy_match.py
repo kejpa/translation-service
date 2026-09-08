@@ -1,5 +1,5 @@
 from translation_service.fuzzy_search import find_fuzzy_matches
-from translation_service.models import TranslationUnit, DocumentPair
+from translation_service.models import DocumentPair, TranslationUnit
 
 
 def test_fuzzy_match_returns_exact_match_with_highest_score(
