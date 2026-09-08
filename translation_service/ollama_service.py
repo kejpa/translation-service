@@ -1,9 +1,9 @@
 import ollama
 
 from translation_service.config import (
+    get_ollama_base_url,
     get_ollama_model,
     get_temperature,
-    get_ollama_base_url,
 )
 
 

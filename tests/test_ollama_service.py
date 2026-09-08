@@ -1,11 +1,11 @@
 from unittest.mock import Mock
 
+import pytest
+
 from translation_service.ollama_service import (
     OllamaError,
     generate_text,
 )
-
-import pytest
 
 
 def test_generate_text_returns_response():
