@@ -203,3 +203,79 @@ def test_build_translated_document_marks_missing_translations():
         "Hej världen",
         "[UNTRANSLATED] Tuntematon teksti",
     ]
+
+
+def test_fuzzy_match_above_reuse_threshold_is_reused(
+    db,
+    monkeypatch,
+):
+    monkeypatch.setenv(
+        "REUSE_THRESHOLD",
+        "85",
+    )
+
+    document_pair = DocumentPair(
+        source_document="source.docx",
+        target_document="target.docx",
+    )
+
+    db.add(document_pair)
+    db.flush()
+
+    db.add(
+        TranslationUnit(
+            document_pair_id=document_pair.id,
+            source_text="Hei maailma",
+            target_text="Hej världen",
+        )
+    )
+
+    db.commit()
+
+    translations = translate_paragraphs(
+        ["Hei maailma!"],
+        db,
+    )
+
+    assert len(translations) == 1
+
+    assert translations[0].target_text == "Hej världen"
+
+    assert translations[0].status == TranslationStatus.FUZZY_HIGH
+
+
+def test_fuzzy_match_below_reuse_threshold_is_not_reused(
+    db,
+    monkeypatch,
+):
+    monkeypatch.setenv(
+        "REUSE_THRESHOLD",
+        "95",
+    )
+
+    document_pair = DocumentPair(
+        source_document="source.docx",
+        target_document="target.docx",
+    )
+
+    db.add(document_pair)
+    db.flush()
+
+    db.add(
+        TranslationUnit(
+            document_pair_id=document_pair.id,
+            source_text="Hei maailma",
+            target_text="Hej världen",
+        )
+    )
+
+    db.commit()
+
+    translations = translate_paragraphs(
+        ["God morgon"],
+        db,
+    )
+
+    assert len(translations) == 1
+
+    assert translations[0].status == TranslationStatus.MISSING

@@ -18,12 +18,15 @@ def calculate_translation_statistics(
     paragraphs: list[ParagraphTranslation],
 ) -> TranslationStatistics:
     translated = 0
+    fuzzy_high = 0
     missing = 0
     empty = 0
 
     for paragraph in paragraphs:
         if paragraph.status == TranslationStatus.TRANSLATED:
             translated += 1
+        elif paragraph.status == TranslationStatus.FUZZY_HIGH:
+            fuzzy_high += 1
         elif paragraph.status == TranslationStatus.MISSING:
             missing += 1
         elif paragraph.status == TranslationStatus.EMPTY:
@@ -32,7 +35,7 @@ def calculate_translation_statistics(
     return TranslationStatistics(
         total_paragraphs=len(paragraphs),
         translated=translated,
-        fuzzy_high=0,
+        fuzzy_high=fuzzy_high,
         fuzzy_low=0,
         missing=missing,
         empty=empty,
