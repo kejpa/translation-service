@@ -52,3 +52,22 @@ def test_calculate_translation_statistics_for_empty_list():
         missing=0,
         empty=0,
     )
+
+
+def test_calculate_statistics_counts_fuzzy_high():
+    statistics = calculate_translation_statistics(
+        [
+            ParagraphTranslation(
+                source_text="Hei maailma",
+                target_text="Hej världen",
+                status=TranslationStatus.FUZZY_HIGH,
+            ),
+        ]
+    )
+
+    assert statistics.total_paragraphs == 1
+    assert statistics.translated == 0
+    assert statistics.fuzzy_high == 1
+    assert statistics.fuzzy_low == 0
+    assert statistics.missing == 0
+    assert statistics.empty == 0
