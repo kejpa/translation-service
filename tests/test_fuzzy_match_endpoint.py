@@ -1,7 +1,7 @@
 from starlette.testclient import TestClient
 
 from translation_service.main import app
-from translation_service.models import TranslationUnit, DocumentPair
+from translation_service.models import DocumentPair, TranslationUnit
 
 client = TestClient(app)
 

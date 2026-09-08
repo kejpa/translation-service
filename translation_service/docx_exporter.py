@@ -5,7 +5,7 @@ from docx import Document
 from docx.document import Document as DocxDocument
 from sqlalchemy.orm import Session
 
-from translation_service.config import get_reuse_threshold
+from translation_service.config import get_reference_threshold, get_reuse_threshold
 from translation_service.docx_parser import extract_all_paragraphs
 from translation_service.fuzzy_search import find_fuzzy_matches
 from translation_service.translation_candidates import (
@@ -73,18 +73,29 @@ def translate_paragraphs(
             db,
         )
 
-        if fuzzy_matches and fuzzy_matches[0].score >= get_reuse_threshold():
+        if fuzzy_matches:
             best_match = fuzzy_matches[0]
 
-            translated_paragraphs.append(
-                ParagraphTranslation(
-                    source_text=paragraph,
-                    target_text=(best_match.translation_unit.target_text),
-                    status=TranslationStatus.FUZZY_HIGH,
+            if best_match.score >= get_reuse_threshold():
+                translated_paragraphs.append(
+                    ParagraphTranslation(
+                        source_text=paragraph,
+                        target_text=best_match.translation_unit.target_text,
+                        status=TranslationStatus.FUZZY_HIGH,
+                    )
                 )
-            )
 
-            continue
+                continue
+
+            if best_match.score >= get_reference_threshold():
+                translated_paragraphs.append(
+                    ParagraphTranslation(
+                        source_text=paragraph,
+                        target_text=paragraph,
+                        status=TranslationStatus.FUZZY_LOW,
+                    )
+                )
+                continue
 
         translated_paragraphs.append(
             ParagraphTranslation(

@@ -204,7 +204,7 @@ def test_translation_statistics_counts_mixed_translation_statuses(
                 create_docx(
                     "Hei maailma",  # exact
                     "Miten voit?",  # fuzzy_high
-                    "Tuntematon",  # missing
+                    "xyz123",  # missing
                     "",  # empty
                 ),
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",

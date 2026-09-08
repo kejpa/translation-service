@@ -279,3 +279,47 @@ def test_fuzzy_match_below_reuse_threshold_is_not_reused(
     assert len(translations) == 1
 
     assert translations[0].status == TranslationStatus.MISSING
+
+
+def test_fuzzy_match_between_thresholds_becomes_fuzzy_low(
+    db,
+    monkeypatch,
+):
+    monkeypatch.setenv(
+        "REUSE_THRESHOLD",
+        "98",
+    )
+
+    monkeypatch.setenv(
+        "REFERENCE_THRESHOLD",
+        "30",
+    )
+
+    document_pair = DocumentPair(
+        source_document="source.docx",
+        target_document="target.docx",
+    )
+
+    db.add(document_pair)
+    db.flush()
+
+    db.add(
+        TranslationUnit(
+            document_pair_id=document_pair.id,
+            source_text="Hei maailma",
+            target_text="Hej världen",
+        )
+    )
+
+    db.commit()
+
+    translations = translate_paragraphs(
+        ["Hei maailmaa"],
+        db,
+    )
+
+    assert len(translations) == 1
+
+    assert translations[0].status == TranslationStatus.FUZZY_LOW
+
+    assert translations[0].target_text == "Hei maailmaa"
