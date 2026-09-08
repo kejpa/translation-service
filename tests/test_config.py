@@ -33,3 +33,25 @@ def test_thresholds_can_be_overridden(
 
     assert config.get_reuse_threshold() == 90
     assert config.get_reference_threshold() == 40
+
+
+def test_get_ollama_model_uses_environment_override(
+    monkeypatch,
+):
+    monkeypatch.setenv(
+        "OLLAMA_MODEL",
+        "llama3.1:8b",
+    )
+
+    assert config.get_ollama_model() == "llama3.1:8b"
+
+
+def test_get_temperature_uses_environment_override(
+    monkeypatch,
+):
+    monkeypatch.setenv(
+        "TEMPERATURE",
+        "0.3",
+    )
+
+    assert config.get_temperature() == 0.3
