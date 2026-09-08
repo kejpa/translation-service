@@ -9,6 +9,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from starlette.responses import FileResponse
 
+from translation_service.config import get_ollama_model, get_temperature
 from translation_service.database import create_tables, get_db
 from translation_service.document_pairing import import_and_save_document_pair
 from translation_service.docx_exporter import translate_document, translate_paragraphs
@@ -355,3 +356,11 @@ def llm_test(
             status_code=500,
             detail=str(error),
         ) from error
+
+
+@app.get("/llm/config")
+def llm_config():
+    return {
+        "model": get_ollama_model(),
+        "temperature": get_temperature(),
+    }
