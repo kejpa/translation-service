@@ -8,6 +8,7 @@ from translation_service.docx_exporter import (
     translate_paragraphs,
 )
 from translation_service.models import DocumentPair, TranslationUnit
+from translation_service.ollama_service import OllamaError
 from translation_service.translation_status import TranslationStatus
 
 
@@ -323,3 +324,44 @@ def test_fuzzy_match_between_thresholds_becomes_fuzzy_low(
     assert translations[0].status == TranslationStatus.FUZZY_LOW
 
     assert translations[0].target_text == "Hei maailmaa"
+
+
+def test_missing_translation_uses_llm_fallback(
+    monkeypatch,
+    db,
+):
+    monkeypatch.setattr(
+        "translation_service.docx_exporter.translate_text",
+        lambda text: "Hej världen",
+    )
+
+    translations = translate_paragraphs(
+        ["Hei maailma"],
+        db,
+    )
+
+    assert translations[0].target_text == "Hej världen"
+
+    assert translations[0].status == TranslationStatus.LLM
+
+
+def test_llm_failure_results_in_missing_status(
+    monkeypatch,
+    db,
+):
+    def fail(_):
+        raise OllamaError(
+            "Failed to communicate with Ollama",
+        )
+
+    monkeypatch.setattr(
+        "translation_service.docx_exporter.translate_text",
+        fail,
+    )
+
+    translations = translate_paragraphs(
+        ["Hei maailma"],
+        db,
+    )
+
+    assert translations[0].status == TranslationStatus.MISSING
