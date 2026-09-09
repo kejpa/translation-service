@@ -8,12 +8,14 @@ from sqlalchemy.orm import Session
 from translation_service.config import get_reference_threshold, get_reuse_threshold
 from translation_service.docx_parser import extract_all_paragraphs
 from translation_service.fuzzy_search import find_fuzzy_matches
+from translation_service.ollama_service import OllamaError
 from translation_service.translation_candidates import (
     select_translation_candidate,
 )
 from translation_service.translation_memory import (
     find_exact_matches,
 )
+from translation_service.translation_service import translate_text
 from translation_service.translation_status import TranslationStatus
 
 
@@ -97,13 +99,27 @@ def translate_paragraphs(
                 )
                 continue
 
-        translated_paragraphs.append(
-            ParagraphTranslation(
-                source_text=paragraph,
-                target_text=paragraph,
-                status=TranslationStatus.MISSING,
+        try:
+            translation = translate_text(
+                paragraph,
             )
-        )
+
+            translated_paragraphs.append(
+                ParagraphTranslation(
+                    source_text=paragraph,
+                    target_text=translation,
+                    status=TranslationStatus.LLM,
+                )
+            )
+
+        except OllamaError:
+            translated_paragraphs.append(
+                ParagraphTranslation(
+                    source_text=paragraph,
+                    target_text=paragraph,
+                    status=TranslationStatus.MISSING,
+                )
+            )
 
     return translated_paragraphs
 

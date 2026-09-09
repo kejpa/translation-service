@@ -5,5 +5,6 @@ class TranslationStatus(StrEnum):
     TRANSLATED = "translated"
     FUZZY_HIGH = "fuzzy_high"
     FUZZY_LOW = "fuzzy_low"
+    LLM = "llm"
     MISSING = "missing"
     EMPTY = "empty"
