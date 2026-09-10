@@ -9,8 +9,11 @@ Translation Service provides a REST API for:
 - Import of paired translation documents
 - Translation memory exact match lookup
 - Translation memory fuzzy match lookup
+- Ollama configuration
+- Ollama connectivity testing
 - DOCX translation and export
 - Translation statistics
+- LLM-assisted translation
 
 Base URL:
 
@@ -36,7 +39,7 @@ Returns basic service information.
 ```json
 {
   "service": "translation-service",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "status": "running",
   "docker": "running"
 }
@@ -175,15 +178,25 @@ Returns a generated DOCX file.
 ### Behaviour
 
 - Exact Translation Memory matches are reused when available
-- High-confidence fuzzy matches are reused automatically
-- Low-confidence fuzzy matches are tracked separately in translation statistics
+- - High-confidence fuzzy matches are reused automatically
+- Low-confidence fuzzy matches are reused automatically and tracked separately
+- LLM translation is used when no suitable Translation Memory match exists
 - Matching is case-insensitive
 - Empty paragraphs are preserved
 - Paragraph order is preserved
-- Missing translations are marked as:
+- Translation status indicators are applied to generated documents
+
+### Translation Status Indicators
+
+Generated DOCX documents use visual indicators:
 
 ```text
-[UNTRANSLATED] Original text
+TRANSLATED  -> No indicator
+FUZZY_HIGH  -> Green left border
+FUZZY_LOW   -> Yellow left border
+LLM         -> Red left border
+MISSING     -> Red left border and red text
+EMPTY       -> No indicator
 ```
 
 ### Error Responses
@@ -215,6 +228,7 @@ Multipart form upload:
   "translated": 10,
   "fuzzy_high": 5,
   "fuzzy_low": 3,
+  "llm": 4,
   "missing": 0,
   "empty": 2
 }
@@ -277,22 +291,6 @@ GET /translations/fuzzy?source_text=Hei maailma
 - Scores are generated using RapidFuzz
 - Exact matches receive the highest score
 
-## Design Decisions
-
-### Exact matching
-
-Exact match lookup is case-insensitive.
-
-Example:
-
-```text
-Hei maailma
-hei maailma
-HEI MAAILMA
-```
-
-are treated as the same source segment.
-
 ### Fuzzy Matching
 
 Fuzzy matching is performed using RapidFuzz.
@@ -303,7 +301,8 @@ Translation workflow priority:
 1. Exact Match
 2. Fuzzy High
 3. Fuzzy Low
-4. Missing
+4. LLM
+5. Missing
 ```
 
 Fuzzy matches are evaluated using configurable thresholds:
@@ -340,14 +339,44 @@ Paragraph 1
 Paragraph 3
 ```
 
-### Missing translations
+### Missing Translations
 
-Paragraphs without a Translation Memory match are preserved and marked.
+The service attempts LLM translation when no suitable Translation Memory match exists.
 
-Example:
+A paragraph is marked as MISSING only if:
 
-```text
-[UNTRANSLATED] Tuntematon teksti
+- no Translation Memory match exists
+- LLM translation fails
+
+MISSING paragraphs are exported with visual indicators to help identify failed translations.
+
+## GET /llm/config
+
+Returns the current Ollama configuration.
+
+### Response
+
+```json
+{
+  "model": "gemma3:4b",
+  "temperature": 0
+}
 ```
+## POST /llm/test
+Verifies communication with Ollama and returns generated text.
 
-This allows users to identify untranslated content in generated documents.
+### Request
+```json
+{
+    "prompt": "Say hello"
+}
+```
+### Response
+{
+  "response": "Hello there!"
+}
+
+### Error Responses
+| Status | Meaning |
+|---------|---------|
+500	|Failed to communicate with Ollama |
