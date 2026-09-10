@@ -2,9 +2,9 @@
 
 A local Translation Memory service built with FastAPI, SQLite and Ollama.
 
-The project provides DOCX import, translation memory management, document translation, translation statistics and future AI-assisted translation through Ollama.
+The project provides DOCX import, translation memory management, document translation, translation statistics and AI-assisted translation through Ollama.
 
-The goal of the project is to provide a self-hosted translation workflow for DOCX documents with translation memory support and local LLM-powered translation assistance.
+The goal of the project is to provide a self-hosted translation workflow for DOCX documents with translation memory support and local LLM-powered translation.
 
 ## Features
 
@@ -26,6 +26,11 @@ Current features:
 - Fuzzy matching using RapidFuzz
 - Configurable reuse threshold
 - Configurable reference threshold
+- Ollama integration
+- Configurable Ollama model
+- Prompt-based translation service
+- LLM fallback translation
+- Visual translation status indicators
 - Docker-based development environment
 - Docker-based production deployment
 - Automated testing with pytest
@@ -34,8 +39,11 @@ Current features:
 - GHCR container publishing
 
 Planned features:
-- Ollama translation backend
-- Translation approval workflow
+
+- Translation review workflow
+- Translation Memory review and maintenance
+- Ollama model validation
+- Configurable translation status colors
 
 ## Workflow
 
@@ -50,11 +58,32 @@ Exact Match
     ↓
 Fuzzy Match
     ↓
+LLM Fallback
+    ↓
 Document Translation
-    ↓
-Statistics
-    ↓
-DOCX Export
+        |
+        v
+Exact Match
+        |
+      Found?
+      /    \
+    Yes    No
+     |      |
+     |      v
+     |   Fuzzy Match
+     |      |
+     |   Found?
+     |     / \
+     |   Yes  No
+     |    |    |
+     |    v    v
+     | Fuzzy  LLM
+     | Match
+     |    |
+     +----+
+          |
+          v
+    DOCX Export
 ```
 
 
@@ -95,6 +124,8 @@ Available endpoints include:
 - /document-pairs/import
 - /translations/exact
 - /translations/fuzzy
+- /llm/config
+- /llm/test
 
 ## Production-like Environment
 
@@ -144,8 +175,14 @@ LOG_LEVEL
 REUSE_THRESHOLD
 REFERENCE_THRESHOLD
 ```
-### Fuzzy Matching Configuration
+### Ollama Configuration
+```text
+OLLAMA_BASE_URL=http://ollama:11434
+OLLAMA_MODEL=gemma3:4b
+TEMPERATURE=0
+```
 
+### Fuzzy Matching Configuration
 ```text
 REUSE_THRESHOLD=85
 REFERENCE_THRESHOLD=30
@@ -164,7 +201,18 @@ Release builds are created from tagged commits:
 git tag vX.Y.Z
 git push origin vX.Y.Z
 ```
+## Translation Status
 
+Generated documents use translation status indicators.
+
+```text
+TRANSLATED  -> No indicator
+FUZZY_HIGH  -> Green left border
+FUZZY_LOW   -> Yellow left border
+LLM         -> Red left border
+MISSING     -> Red left border and red text
+EMPTY       -> No indicator
+```
 
 ## Technology Stack
 - FastAPI

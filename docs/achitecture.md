@@ -67,6 +67,8 @@ Examples:
 /document-pairs/import
 /translations/exact
 /translations/fuzzy
+/llm/config
+/llm/test
 ```
 
 
@@ -90,7 +92,7 @@ The DOCX translation layer is responsible for:
 - Preserving document structure
 - Preserving paragraph order
 - Preserving empty paragraphs
-- Marking untranslated content
+- Applying translation status indicators
 - Generating translated DOCX documents
 
 Translation status values:
@@ -99,8 +101,19 @@ Translation status values:
 TRANSLATED
 FUZZY_HIGH
 FUZZY_LOW
+LLM
 MISSING
 EMPTY
+```
+Status indicators:
+```text
+
+TRANSLATED  -> No indicator
+FUZZY_HIGH  -> Green left border
+FUZZY_LOW   -> Yellow left border
+LLM         -> Red left border
+MISSING     -> Red left border and red text
+EMPTY       -> No indicator
 ```
 
 ### Translation Memory
@@ -174,6 +187,7 @@ total_paragraphs
 translated
 fuzzy_high
 fuzzy_low
+llm
 missing
 empty
 ```
@@ -184,13 +198,15 @@ Statistics are not persisted in the database.
 
 Ollama is responsible for generating new translations when no suitable Translation Memory match exists.
 
-Current status:
+Current capabilities:
 
-```text
-Planned
-```
+- Ollama connectivity
+- Configurable model selection
+- Prompt handling
+- LLM translation service
+- LLM fallback translation
 
-Future workflow:
+Workflow:
 
 ```text
 Translation Request
@@ -210,8 +226,19 @@ Exact Match
      |      v
      | Reuse / Reference
      |      |
-     v      v
- TM Result Ollama
+     |      v
+     |   Fuzzy Result
+     |      |
+     |      |
+     |      No Match
+     |      |
+     |      v
+     |    Ollama
+     |      |
+     +------+
+            |
+            v
+     Translated Text
 ```
 
 
@@ -347,7 +374,35 @@ AI Integration
 
 Each layer should depend only on the layer directly beneath it.
 
+### LLM Translation Flow
 
+When no suitable Translation Memory match exists:
+```text
+
+Exact Match
+    ↓
+No Match
+    ↓
+Fuzzy Match
+    ↓
+No Match
+    ↓
+Prompt Builder
+    ↓
+Ollama
+    ↓
+LLM Translation
+    ↓
+DOCX Export
+
+If Ollama fails:
+
+Ollama
+    ↓
+Error
+    ↓
+MISSING
+```
 
 ## Future Enhancements
 
@@ -355,7 +410,11 @@ Planned features include:
 
 - Advanced fuzzy confidence tuning
 - Context-aware candidate ranking
-- Ollama fallback translation
+- Translation approval workflow
+- Translation Memory review and maintenance
+- Ollama model validation
+- Configurable status indicator colors
+- Context-aware candidate ranking
 - Batch document import
 - Translation review workflow
 - Translation Memory maintenance tools
