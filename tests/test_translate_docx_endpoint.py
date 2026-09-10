@@ -112,7 +112,7 @@ def test_translate_docx_returns_translated_content(
 
     assert paragraphs == [
         "Hej världen",
-        "[UNTRANSLATED] Tuntematon teksti",
+        "Tuntematon teksti",
     ]
 
 
