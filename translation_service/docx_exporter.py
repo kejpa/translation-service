@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from translation_service.config import get_reference_threshold, get_reuse_threshold
 from translation_service.docx_parser import extract_all_paragraphs
+from translation_service.docx_status_indicators import apply_status_indicator
 from translation_service.fuzzy_search import find_fuzzy_matches
 from translation_service.ollama_service import OllamaError
 from translation_service.translation_candidates import (
@@ -148,9 +149,10 @@ def build_translated_document(
     document = Document()
 
     for paragraph in paragraphs:
-        if paragraph.status == TranslationStatus.MISSING:
-            document.add_paragraph(f"[UNTRANSLATED] {paragraph.source_text}")
-        else:
-            document.add_paragraph(paragraph.target_text)
+        p = document.add_paragraph(paragraph.target_text)
+        apply_status_indicator(
+            p,
+            paragraph.status,
+        )
 
     return document

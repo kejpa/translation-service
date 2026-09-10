@@ -117,7 +117,7 @@ def test_translate_document(
 
     assert paragraphs == [
         "Hej världen",
-        "[UNTRANSLATED] Tuntematon teksti",
+        "Tuntematon teksti",
     ]
 
 
@@ -148,7 +148,7 @@ def test_create_translated_docx_marks_missing_translations(
 
     assert paragraphs == [
         "Hej världen",
-        "[UNTRANSLATED] Tuntematon teksti",
+        "Tuntematon teksti",
     ]
 
 
@@ -202,7 +202,7 @@ def test_build_translated_document_marks_missing_translations():
 
     assert paragraphs == [
         "Hej världen",
-        "[UNTRANSLATED] Tuntematon teksti",
+        "Tuntematon teksti",
     ]
 
 
