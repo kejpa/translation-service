@@ -1,9 +1,10 @@
+from docx import Document
+
 from translation_service.docx_status_indicators import (
     apply_left_border,
     apply_status_indicator,
     get_border_color,
 )
-from docx import Document
 from translation_service.translation_status import TranslationStatus
 
 
