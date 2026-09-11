@@ -94,7 +94,7 @@ def translate_paragraphs(
                 translated_paragraphs.append(
                     ParagraphTranslation(
                         source_text=paragraph,
-                        target_text=paragraph,
+                        target_text=best_match.translation_unit.target_text,
                         status=TranslationStatus.FUZZY_LOW,
                     )
                 )

@@ -26,7 +26,9 @@ def test_llm_config_endpoint_returns_defaults(
 
     assert response.json() == {
         "model": "gemma3:4b",
-        "temperature": 0.0,
+        "temperature": 0,
+        "reuse_threshold": 85,
+        "reference_threshold": 30,
     }
 
 
@@ -43,6 +45,16 @@ def test_llm_config_endpoint_returns_environment_values(
         "0.2",
     )
 
+    monkeypatch.setenv(
+        "REUSE_THRESHOLD",
+        "95",
+    )
+
+    monkeypatch.setenv(
+        "REFERENCE_THRESHOLD",
+        "60",
+    )
+
     response = client.get(
         "/llm/config",
     )
@@ -52,4 +64,6 @@ def test_llm_config_endpoint_returns_environment_values(
     assert response.json() == {
         "model": "qwen2.5:7b",
         "temperature": 0.2,
+        "reuse_threshold": 95,
+        "reference_threshold": 60,
     }

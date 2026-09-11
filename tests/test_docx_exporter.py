@@ -323,7 +323,7 @@ def test_fuzzy_match_between_thresholds_becomes_fuzzy_low(
 
     assert translations[0].status == TranslationStatus.FUZZY_LOW
 
-    assert translations[0].target_text == "Hei maailmaa"
+    assert translations[0].target_text == "Hej världen"
 
 
 def test_missing_translation_uses_llm_fallback(

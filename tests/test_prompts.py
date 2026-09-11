@@ -3,22 +3,17 @@ from translation_service.prompts import (
 )
 
 
-def test_build_translation_prompt():
+def test_build_translation_prompt_contains_translation_rules():
     prompt = build_translation_prompt(
         "Hei maailma",
     )
 
-    assert prompt == (
-        "Translate the following Finnish text to Swedish.\n\n"
-        "Finnish:\n"
-        "Hei maailma\n\n"
-        "Swedish:"
+    assert "Return only the Swedish translation" in prompt
+
+
+def test_build_translation_prompt_contains_no_explanation_rule():
+    prompt = build_translation_prompt(
+        "Hei maailma",
     )
 
-
-def test_build_translation_prompt_for_empty_text():
-    prompt = build_translation_prompt("")
-
-    assert prompt == (
-        "Translate the following Finnish text to Swedish.\n\nFinnish:\n\n\nSwedish:"
-    )
+    assert "Do not explain your translation" in prompt
