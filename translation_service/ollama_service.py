@@ -52,3 +52,18 @@ def check_connection(
 
     except Exception:
         return False
+
+
+def model_exists(
+    client=None,
+) -> bool:
+    if client is None:
+        client = ollama.Client(
+            host=get_ollama_base_url(),
+        )
+
+    models = client.list()
+
+    configured_model = get_ollama_model()
+
+    return any(model["model"] == configured_model for model in models["models"])

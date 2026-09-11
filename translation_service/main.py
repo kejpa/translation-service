@@ -2,10 +2,11 @@ import tomllib
 from dataclasses import asdict
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from contextlib import asynccontextmanager
+
 
 from docx.opc.exceptions import PackageNotFoundError
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.logger import logger
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -27,12 +28,13 @@ from translation_service.ollama_service import (
     OllamaError,
     generate_text,
     check_connection,
+    model_exists,
 )
 from translation_service.translation_memory import find_exact_matches
 from translation_service.translation_statistics import calculate_translation_statistics
 
 VERSION = Path("VERSION").read_text(encoding="utf-8").strip()
-
+print("MAIN.PY LOADED")
 with open("pyproject.toml", "rb") as f:
     pyproject = tomllib.load(f)
 
@@ -41,24 +43,48 @@ PROJECT_DESCRIPTION = pyproject["project"].get("description", "")
 
 create_tables()
 
-if check_connection():
-    logger.info(
-        "Ollama connection verified",
-    )
-else:
-    logger.info(
-        "WARNING: Unable to connect to Ollama",
-    )
-
 
 class LlmTestRequest(BaseModel):
     prompt: str
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print(
+        "Running Ollama verification",
+        flush=True,
+    )
+
+    if check_connection():
+        print(
+            "Ollama connection verified",
+            flush=True,
+        )
+
+        if model_exists():
+            print(
+                "Configured model verified",
+                flush=True,
+            )
+        else:
+            print(
+                "Configured model is not installed",
+                flush=True,
+            )
+    else:
+        print(
+            "Unable to connect to Ollama",
+            flush=True,
+        )
+
+    yield
 
 
 app = FastAPI(
     title=PROJECT_NAME,
     description=PROJECT_DESCRIPTION,
     version=VERSION,
+    lifespan=lifespan,
 )
 
 
