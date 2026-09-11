@@ -65,8 +65,15 @@ def test_translate_text_passes_prompt_to_generate_text(
     )
 
     assert captured_prompt == (
-        "Translate the following Finnish text to Swedish.\n\n"
-        "Finnish:\n"
-        "Hei maailma\n\n"
-        "Swedish:"
+        "You are a professional Finnish to Swedish translator.\n\n"
+        "Translate the Finnish text to Swedish.\n\n"
+        "Rules:\n"
+        "- Return only the Swedish translation.\n"
+        "- Do not explain your translation.\n"
+        "- Do not provide alternatives.\n"
+        "- Do not provide notes.\n"
+        "- Do not use markdown.\n"
+        "- Do not ask follow-up questions.\n"
+        "- Do not include the original Finnish text.\n\n"
+        "Finnish:\nHei maailma"
     )
