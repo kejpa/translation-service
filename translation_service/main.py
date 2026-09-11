@@ -99,12 +99,20 @@ def root():
 
 
 @app.get("/health")
-def health(db: Session = Depends(get_db)):
+def health(
+    db: Session = Depends(get_db),
+):
     db.execute(text("SELECT 1"))
+
     return {
         "status": "running",
         "database": "connected",
         "docker": "running",
+        "ollama": ("connected" if check_connection() else "disconnected"),
+        "model": get_ollama_model(),
+        "model_available": model_exists(),
+        "reuse_threshold": get_reuse_threshold(),
+        "reference_threshold": get_reference_threshold(),
     }
 
 
