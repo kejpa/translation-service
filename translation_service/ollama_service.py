@@ -35,3 +35,20 @@ def generate_text(
         raise OllamaError(
             "Failed to communicate with Ollama",
         ) from error
+
+
+def check_connection(
+    client=None,
+) -> bool:
+    if client is None:
+        client = ollama.Client(
+            host=get_ollama_base_url(),
+        )
+
+    try:
+        client.list()
+
+        return True
+
+    except Exception:
+        return False

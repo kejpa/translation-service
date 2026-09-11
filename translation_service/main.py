@@ -5,6 +5,7 @@ from tempfile import NamedTemporaryFile
 
 from docx.opc.exceptions import PackageNotFoundError
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.logger import logger
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -22,7 +23,11 @@ from translation_service.docx_exporter import translate_document, translate_para
 from translation_service.docx_parser import extract_all_paragraphs, extract_paragraphs
 from translation_service.fuzzy_search import find_fuzzy_matches
 from translation_service.models import TranslationUnit
-from translation_service.ollama_service import OllamaError, generate_text
+from translation_service.ollama_service import (
+    OllamaError,
+    generate_text,
+    check_connection,
+)
 from translation_service.translation_memory import find_exact_matches
 from translation_service.translation_statistics import calculate_translation_statistics
 
@@ -35,6 +40,15 @@ PROJECT_NAME = pyproject["project"]["name"]
 PROJECT_DESCRIPTION = pyproject["project"].get("description", "")
 
 create_tables()
+
+if check_connection():
+    logger.info(
+        "Ollama connection verified",
+    )
+else:
+    logger.info(
+        "WARNING: Unable to connect to Ollama",
+    )
 
 
 class LlmTestRequest(BaseModel):
