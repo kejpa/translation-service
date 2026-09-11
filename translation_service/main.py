@@ -2,6 +2,8 @@ import tomllib
 from dataclasses import asdict
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from contextlib import asynccontextmanager
+
 
 from docx.opc.exceptions import PackageNotFoundError
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
@@ -22,12 +24,17 @@ from translation_service.docx_exporter import translate_document, translate_para
 from translation_service.docx_parser import extract_all_paragraphs, extract_paragraphs
 from translation_service.fuzzy_search import find_fuzzy_matches
 from translation_service.models import TranslationUnit
-from translation_service.ollama_service import OllamaError, generate_text
+from translation_service.ollama_service import (
+    OllamaError,
+    generate_text,
+    check_connection,
+    model_exists,
+)
 from translation_service.translation_memory import find_exact_matches
 from translation_service.translation_statistics import calculate_translation_statistics
 
 VERSION = Path("VERSION").read_text(encoding="utf-8").strip()
-
+print("MAIN.PY LOADED")
 with open("pyproject.toml", "rb") as f:
     pyproject = tomllib.load(f)
 
@@ -41,10 +48,43 @@ class LlmTestRequest(BaseModel):
     prompt: str
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print(
+        "Running Ollama verification",
+        flush=True,
+    )
+
+    if check_connection():
+        print(
+            "Ollama connection verified",
+            flush=True,
+        )
+
+        if model_exists():
+            print(
+                "Configured model verified",
+                flush=True,
+            )
+        else:
+            print(
+                "Configured model is not installed",
+                flush=True,
+            )
+    else:
+        print(
+            "Unable to connect to Ollama",
+            flush=True,
+        )
+
+    yield
+
+
 app = FastAPI(
     title=PROJECT_NAME,
     description=PROJECT_DESCRIPTION,
     version=VERSION,
+    lifespan=lifespan,
 )
 
 
@@ -59,12 +99,20 @@ def root():
 
 
 @app.get("/health")
-def health(db: Session = Depends(get_db)):
+def health(
+    db: Session = Depends(get_db),
+):
     db.execute(text("SELECT 1"))
+
     return {
         "status": "running",
         "database": "connected",
         "docker": "running",
+        "ollama": ("connected" if check_connection() else "disconnected"),
+        "model": get_ollama_model(),
+        "model_available": model_exists(),
+        "reuse_threshold": get_reuse_threshold(),
+        "reference_threshold": get_reference_threshold(),
     }
 
 

@@ -5,6 +5,8 @@ import pytest
 from translation_service.ollama_service import (
     OllamaError,
     generate_text,
+    check_connection,
+    model_exists,
 )
 
 
@@ -63,3 +65,71 @@ def test_generate_text_raises_ollama_error_on_failure():
             prompt="Say hello",
             client=client,
         )
+
+
+def test_check_ollama_connection_returns_true(
+    monkeypatch,
+):
+    class FakeClient:
+        def list(self):
+            return {}
+
+    monkeypatch.setattr(
+        "translation_service.ollama_service.ollama.Client",
+        lambda host: FakeClient(),
+    )
+
+    assert check_connection() is True
+
+
+def test_check_ollama_connection_returns_false_on_error(
+    monkeypatch,
+):
+    class FakeClient:
+        def list(self):
+            raise Exception()
+
+    monkeypatch.setattr(
+        "translation_service.ollama_service.ollama.Client",
+        lambda host: FakeClient(),
+    )
+
+    assert check_connection() is False
+
+
+def test_model_exists_returns_true(
+    monkeypatch,
+):
+    class FakeClient:
+        def list(self):
+            return {
+                "models": [
+                    {"model": "gemma3:4b"},
+                ],
+            }
+
+    monkeypatch.setattr(
+        "translation_service.ollama_service.ollama.Client",
+        lambda host: FakeClient(),
+    )
+
+    assert model_exists() is True
+
+
+def test_model_exists_returns_false_when_missing(
+    monkeypatch,
+):
+    class FakeClient:
+        def list(self):
+            return {
+                "models": [
+                    {"model": "llama3.2"},
+                ],
+            }
+
+    monkeypatch.setattr(
+        "translation_service.ollama_service.ollama.Client",
+        lambda host: FakeClient(),
+    )
+
+    assert model_exists() is False

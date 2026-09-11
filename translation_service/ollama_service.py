@@ -35,3 +35,35 @@ def generate_text(
         raise OllamaError(
             "Failed to communicate with Ollama",
         ) from error
+
+
+def check_connection(
+    client=None,
+) -> bool:
+    if client is None:
+        client = ollama.Client(
+            host=get_ollama_base_url(),
+        )
+
+    try:
+        client.list()
+
+        return True
+
+    except Exception:
+        return False
+
+
+def model_exists(
+    client=None,
+) -> bool:
+    if client is None:
+        client = ollama.Client(
+            host=get_ollama_base_url(),
+        )
+
+    models = client.list()
+
+    configured_model = get_ollama_model()
+
+    return any(model["model"] == configured_model for model in models["models"])
