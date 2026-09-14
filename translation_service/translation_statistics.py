@@ -10,6 +10,7 @@ class TranslationStatistics:
     translated: int
     fuzzy_high: int
     fuzzy_low: int
+    llm: int
     missing: int
     empty: int
 
@@ -20,6 +21,7 @@ def calculate_translation_statistics(
     translated = 0
     fuzzy_high = 0
     fuzzy_low = 0
+    llm = 0
     missing = 0
     empty = 0
 
@@ -30,6 +32,8 @@ def calculate_translation_statistics(
             fuzzy_high += 1
         elif paragraph.status == TranslationStatus.FUZZY_LOW:
             fuzzy_low += 1
+        elif paragraph.status == TranslationStatus.LLM:
+            llm += 1
         elif paragraph.status == TranslationStatus.MISSING:
             missing += 1
         elif paragraph.status == TranslationStatus.EMPTY:
@@ -40,6 +44,7 @@ def calculate_translation_statistics(
         translated=translated,
         fuzzy_high=fuzzy_high,
         fuzzy_low=fuzzy_low,
+        llm=llm,
         missing=missing,
         empty=empty,
     )
