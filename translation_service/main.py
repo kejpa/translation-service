@@ -265,12 +265,10 @@ async def translate_docx(
         temp_file.write(await file.read())
         temp_path = Path(temp_file.name)
 
-    with NamedTemporaryFile(
-        delete=False,
-        suffix=".docx",
-    ) as output_file:
-        output_path = Path(output_file.name)
+    output_dir = Path("generated")
+    output_dir.mkdir(exist_ok=True)
 
+    output_path = output_dir / output_filename
     try:
         translate_document(
             temp_path,
@@ -278,14 +276,29 @@ async def translate_docx(
             db,
         )
 
-        return FileResponse(
-            path=output_path,
-            media_type=(
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            ),
-            filename=output_filename,
+        source_paragraphs = extract_all_paragraphs(
+            temp_path,
         )
 
+        translations = translate_paragraphs(
+            source_paragraphs,
+            db,
+        )
+
+        statistics = calculate_translation_statistics(
+            translations,
+        )
+
+        translate_document(
+            temp_path,
+            output_path,
+            db,
+        )
+
+        return {
+            "download_url": f"/downloads/{output_filename}",
+            "statistics": asdict(statistics),
+        }
     except PackageNotFoundError:
         raise HTTPException(
             status_code=422,
@@ -419,3 +432,24 @@ def llm_config():
         "reuse_threshold": get_reuse_threshold(),
         "reference_threshold": get_reference_threshold(),
     }
+
+
+@app.get("/downloads/{filename}")
+def download_file(
+    filename: str,
+):
+    file_path = Path("generated") / filename
+
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="File not found",
+        )
+
+    return FileResponse(
+        path=file_path,
+        media_type=(
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ),
+        filename=filename,
+    )

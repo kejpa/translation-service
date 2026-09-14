@@ -37,6 +37,7 @@ def test_translation_statistics_endpoint(
         "translated": 1,
         "fuzzy_high": 0,
         "fuzzy_low": 0,
+        "llm": 0,
         "missing": 1,
         "empty": 1,
     }
@@ -105,6 +106,7 @@ def test_translation_statistics_for_empty_document(
         "translated": 0,
         "fuzzy_high": 0,
         "fuzzy_low": 0,
+        "llm": 0,
         "missing": 0,
         "empty": 0,
     }
@@ -157,6 +159,7 @@ def test_translation_statistics_counts_fuzzy_high_matches(
         "translated": 0,
         "fuzzy_high": 1,
         "fuzzy_low": 0,
+        "llm": 0,
         "missing": 0,
         "empty": 0,
     }
@@ -219,6 +222,7 @@ def test_translation_statistics_counts_mixed_translation_statuses(
         "translated": 1,
         "fuzzy_high": 1,
         "fuzzy_low": 0,
+        "llm": 0,
         "missing": 1,
         "empty": 1,
     }

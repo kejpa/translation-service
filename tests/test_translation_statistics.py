@@ -36,6 +36,7 @@ def test_calculate_translation_statistics():
         translated=1,
         fuzzy_high=0,
         fuzzy_low=0,
+        llm=0,
         missing=1,
         empty=1,
     )
@@ -49,6 +50,7 @@ def test_calculate_translation_statistics_for_empty_list():
         translated=0,
         fuzzy_high=0,
         fuzzy_low=0,
+        llm=0,
         missing=0,
         empty=0,
     )
@@ -69,5 +71,6 @@ def test_calculate_statistics_counts_fuzzy_high():
     assert statistics.translated == 0
     assert statistics.fuzzy_high == 1
     assert statistics.fuzzy_low == 0
+    assert statistics.llm == 0
     assert statistics.missing == 0
     assert statistics.empty == 0
