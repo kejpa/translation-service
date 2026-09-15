@@ -48,6 +48,13 @@ class LlmTestRequest(BaseModel):
     prompt: str
 
 
+class UpdateTranslationUnitRequest(
+    BaseModel,
+):
+    source_text: str
+    target_text: str
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print(
@@ -118,9 +125,21 @@ def health(
 
 @app.get("/translation-units")
 def get_translation_units(
+    query: str | None = None,
     db: Session = Depends(get_db),
 ):
-    units = db.query(TranslationUnit).order_by(TranslationUnit.id.desc()).all()
+    units_query = db.query(
+        TranslationUnit,
+    )
+
+    if query:
+        units_query = units_query.filter(
+            TranslationUnit.source_text.contains(
+                query,
+            ),
+        )
+
+    units = units_query.order_by(TranslationUnit.id.desc()).all()
 
     if units is None:
         raise RuntimeError("No TranslationUnit found")
@@ -453,3 +472,56 @@ def download_file(
         ),
         filename=filename,
     )
+
+
+@app.put("/translation-units/{translation_unit_id}")
+def update_translation_unit(
+    translation_unit_id: int,
+    request: UpdateTranslationUnitRequest,
+    db: Session = Depends(get_db),
+):
+    unit = db.get(
+        TranslationUnit,
+        translation_unit_id,
+    )
+
+    if unit is None:
+        raise HTTPException(
+            status_code=404,
+            detail="TranslationUnit not found",
+        )
+
+    unit.source_text = request.source_text
+    unit.target_text = request.target_text
+
+    db.commit()
+
+    return {
+        "id": unit.id,
+        "source_text": unit.source_text,
+        "target_text": unit.target_text,
+    }
+
+
+@app.delete(
+    "/translation-units/{translation_unit_id}",
+    status_code=204,
+)
+def delete_translation_unit(
+    translation_unit_id: int,
+    db: Session = Depends(get_db),
+):
+    unit = db.get(
+        TranslationUnit,
+        translation_unit_id,
+    )
+
+    if unit is None:
+        raise HTTPException(
+            status_code=404,
+            detail="TranslationUnit not found",
+        )
+
+    db.delete(unit)
+
+    db.commit()
