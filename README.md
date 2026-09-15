@@ -26,8 +26,10 @@ Current features:
 - Fuzzy matching using RapidFuzz
 - Configurable reuse threshold
 - Configurable reference threshold
+- Translation Memory review and maintenance
 - Ollama integration
 - Configurable Ollama model
+- Ollama model validation
 - Prompt-based translation service
 - LLM fallback translation
 - Visual translation status indicators
@@ -41,8 +43,6 @@ Current features:
 Planned features:
 
 - Translation review workflow
-- Translation Memory review and maintenance
-- Ollama model validation
 - Configurable translation status colors
 
 ## Workflow
@@ -122,10 +122,68 @@ Available endpoints include:
 - /docx/statistics
 - /docx/translate
 - /document-pairs/import
+- /downloads/{filename}
 - /translations/exact
 - /translations/fuzzy
+- /translation-units
+- /translation-units/{id}
 - /llm/config
 - /llm/test
+
+#### /health endpoint
+```json
+{
+  "status": "running",
+  "database": "connected",
+  "docker": "running",
+  "ollama": "connected",
+  "model": "gemma3:4b",
+  "model_available": true,
+  "reuse_threshold": 85,
+  "reference_threshold": 30
+}
+```
+
+## Translation Result
+
+The translation endpoint returns metadata together with the generated document.
+
+Example:
+
+```json
+{
+  "download_url": "/downloads/translated.docx",
+  "statistics": {
+    "total_paragraphs": 120,
+    "translated": 70,
+    "fuzzy_high": 25,
+    "fuzzy_low": 10,
+    "llm": 12,
+    "missing": 1,
+    "empty": 2
+  }
+}
+```
+### Generated Documents
+Translated documents are stored in the generated/ directory and can be downloaded using the provided download URL. Example: /downloads/my-translation.docx
+
+## Translation Memory Maintenance
+
+Translation units can be managed directly through the API.
+
+Available operations:
+
+- Search translation units
+- Update translation units
+- Delete translation units
+
+Examples:
+
+GET /translation-units?query=maailma
+
+PUT /translation-units/{id}
+
+DELETE /translation-units/{id}
 
 ## Production-like Environment
 

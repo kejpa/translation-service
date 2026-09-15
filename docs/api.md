@@ -9,6 +9,9 @@ Translation Service provides a REST API for:
 - Import of paired translation documents
 - Translation memory exact match lookup
 - Translation memory fuzzy match lookup
+- Translation Memory maintenance
+- Translation job results
+- Generated document downloads
 - Ollama configuration
 - Ollama connectivity testing
 - DOCX translation and export
@@ -26,6 +29,16 @@ Swagger UI:
 ```text
 http://localhost:8000/docs
 ```
+## Generated Files
+
+Translated documents are stored in the generated directory.
+
+Documents can later be downloaded through:
+
+GET /downloads/{filename}
+
+Custom filenames are supported through the output_filename parameter.
+
 ## Related Documentation
 
 - Architecture: [architecture.md]()
@@ -55,9 +68,23 @@ Returns service health status.
 {
   "status": "running",
   "database": "connected",
-  "docker": "running"
+  "docker": "running",
+  "ollama": "connected",
+  "model": "gemma3:4b",
+  "model_available": true,
+  "reuse_threshold": 85,
+  "reference_threshold": 30
 }
 ```
+### Notes
+
+The health endpoint verifies:
+
+- Database connectivity
+- Docker runtime
+- Ollama connectivity
+- Configured model availability
+- Active fuzzy matching thresholds
 
 ## POST /docx/parse
 
@@ -160,7 +187,10 @@ GET /translations/exact?source_text=Hei maailma
 ```
 ## POST /docx/translate
 
-Translates a DOCX document using Translation Memory.
+Returns a translation job result containing:
+
+- Download URL
+- Translation statistics
 
 ### Request
 
@@ -172,14 +202,27 @@ Multipart form upload:
 | output_filename | string (optional) |
 
 ### Success Response
+```json
+{
+  "download_url": "/downloads/translated.docx",
+  "statistics": {
+    "total_paragraphs": 20,
+    "translated": 10,
+    "fuzzy_high": 5,
+    "fuzzy_low": 3,
+    "llm": 4,
+    "missing": 0,
+    "empty": 2
+  }
+}
+```
 
-Returns a generated DOCX file.
 
 ### Behaviour
 
 - Exact Translation Memory matches are reused when available
-- - High-confidence fuzzy matches are reused automatically
-- Low-confidence fuzzy matches are reused automatically and tracked separately
+- High-confidence fuzzy matches are reused automatically
+- Low-confidence fuzzy matches are returned as reference candidates and tracked separately.
 - LLM translation is used when no suitable Translation Memory match exists
 - Matching is case-insensitive
 - Empty paragraphs are preserved
@@ -207,6 +250,81 @@ EMPTY       -> No indicator
 | 400 | Only DOCX files are supported |
 | 422 | Invalid DOCX file |
 | 500 | Failed to translate document |
+
+## GET /downloads/{filename}
+
+Downloads a previously generated DOCX file.
+
+### Request
+
+```text
+GET /downloads/translated.docx
+```
+### Response
+Returns:
+application/vnd.openxmlformats-officedocument.wordprocessingml.document
+
+### Error Responses
+| Status | Meaning |
+|---------|---------|
+| 404 | File not found |
+
+## GET /translation-units
+### Request
+GET /translation-units
+
+Optional search:
+
+GET /translation-units?query=maailma
+### Response
+```json
+[
+  {
+    "id": 1,
+    "source_text": "Hei maailma",
+    "target_text": "Hej världen"
+  }
+]
+```
+
+## PUT /translation-units/{id}
+Updates an existing translation unit.
+
+### Request
+
+```json
+{
+  "source_text": "Hei maailma",
+  "target_text": "Hej världen"
+}
+```
+### Response
+```json
+{
+  "id": 1,
+  "source_text": "Hei maailma",
+  "target_text": "Hej världen"
+}
+```
+
+### Error Responses
+| Status | Meaning |
+|---------|---------|
+| 404 | Translation unit not found |
+
+## DELETE /translation-units/{id}
+Deletes a translation unit.
+
+### Response
+```text
+204 No Content
+```
+
+### Error Responses
+| Status | Meaning |
+|---------|---------|
+| 404 | Translation unit not found |
+
 
 ## POST /docx/statistics
 
@@ -359,7 +477,9 @@ Returns the current Ollama configuration.
 ```json
 {
   "model": "gemma3:4b",
-  "temperature": 0
+  "temperature": 0,
+  "reuse_threshold": 85,
+  "reference_threshold": 30
 }
 ```
 ## POST /llm/test

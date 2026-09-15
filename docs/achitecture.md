@@ -10,7 +10,9 @@ The system is designed to:
 2. Build a Translation Memory from aligned paragraph pairs.
 3. Retrieve existing translations through exact and fuzzy matching.
 4. Use Ollama only when no suitable Translation Memory match exists.
-5. Generate translated documents while continuously improving the Translation Memory.
+5. Generate translated documents and translation statistics.
+6. Store generated documents for later download.
+7. Support Translation Memory maintenance through search, update and delete operations.
 
 The architecture follows a layered design where API endpoints, business logic, persistence, and AI integration are clearly separated.
 
@@ -41,6 +43,11 @@ The architecture follows a layered design where API endpoints, business logic, p
 | Translation  |   | LLM        |
 | Memory       |   +------------+
 +--------------+
+       |
+       v
++----------------+
+| Generated DOCX |
++----------------+
 ```
 
 
@@ -65,8 +72,11 @@ Examples:
 /docx/statistics
 /docx/translate
 /document-pairs/import
+/downloads/{filename}
 /translations/exact
 /translations/fuzzy
+/translation-units
+/translation-units/{id}
 /llm/config
 /llm/test
 ```
@@ -94,6 +104,10 @@ The DOCX translation layer is responsible for:
 - Preserving empty paragraphs
 - Applying translation status indicators
 - Generating translated DOCX documents
+- Generating translation job results
+- Producing translation statistics
+- Saving generated documents
+- Providing downloadable output files
 
 Translation status values:
 
@@ -115,6 +129,24 @@ LLM         -> Red left border
 MISSING     -> Red left border and red text
 EMPTY       -> No indicator
 ```
+### Generated Documents
+
+Generated translations are stored on disk.
+
+Current capabilities:
+
+- Persistent translated DOCX files
+- Download endpoint
+- Custom output filenames
+- Default translated filename support
+
+Storage:
+
+generated/
+
+Download:
+
+GET /downloads/{filename}
 
 ### Translation Memory
 
@@ -137,9 +169,23 @@ target_text
 document_pair_id
 ```
 
+### Translation Memory Maintenance
 Translation units are imported from paired source and target documents.
 
+The Translation Memory maintenance layer is responsible for:
 
+- Searching TranslationUnits
+- Updating TranslationUnits
+- Deleting TranslationUnits
+- Maintaining translation quality
+- Correcting imported translations
+
+Endpoints:
+```text
+GET    /translation-units
+PUT    /translation-units/{id}
+DELETE /translation-units/{id}
+```
 
 ### Database Layer
 
@@ -178,7 +224,7 @@ The search layer does not perform machine translation.
 
 ### Translation Statistics
 
-Translation statistics are calculated on demand.
+Statistics are returned as part of translation job results and are not persisted in the database.
 
 Current statistics:
 
@@ -199,8 +245,9 @@ Statistics are not persisted in the database.
 Ollama is responsible for generating new translations when no suitable Translation Memory match exists.
 
 Current capabilities:
-
 - Ollama connectivity
+- Startup connectivity verification
+- Model availability verification
 - Configurable model selection
 - Prompt handling
 - LLM translation service
@@ -241,7 +288,19 @@ Exact Match
      Translated Text
 ```
 
+### Health Monitoring
 
+The health endpoint verifies:
+
+- Database connectivity
+- Docker runtime status
+- Ollama connectivity
+- Configured model availability
+- Fuzzy matching thresholds
+
+Endpoint:
+
+GET /health
 
 ## Deployment Architecture
 
@@ -266,13 +325,15 @@ Developer
     v
  FastAPI
     |
-    v
- SQLite
-
- FastAPI
+    +------------+
+    |            |
+    v            v
+ SQLite      Ollama
+    +------------+
     |
     v
- Ollama
+Generated
+DOCX
 ```
 
 
@@ -296,12 +357,17 @@ Characteristics:
 Client
    |
    v
-FastAPI
-   |
-   +--------+
-   |        |
-   v        v
-SQLite   Ollama
+ FastAPI
+    |
+    +------------+
+    |            |
+    v            v
+ SQLite      Ollama
+    +------------+
+    |
+    v
+Generated
+DOCX
 ```
 
 
@@ -335,6 +401,11 @@ Every test starts with a clean schema.
 ## Design Principles
 
 ### Local First
+1. Exact Match
+2. High-Confidence Fuzzy Match (automatic reuse)
+3. Low-Confidence Fuzzy Match (reference)
+4. Ollama Translation
+5. Missing Translation (only if Ollama fails)
 
 All processing occurs locally.
 
@@ -411,13 +482,10 @@ Planned features include:
 - Advanced fuzzy confidence tuning
 - Context-aware candidate ranking
 - Translation approval workflow
-- Translation Memory review and maintenance
-- Ollama model validation
 - Configurable status indicator colors
 - Context-aware candidate ranking
 - Batch document import
 - Translation review workflow
-- Translation Memory maintenance tools
 
 
 ## Technology Stack
