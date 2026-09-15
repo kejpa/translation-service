@@ -1,9 +1,8 @@
 import tomllib
+from contextlib import asynccontextmanager
 from dataclasses import asdict
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from contextlib import asynccontextmanager
-
 
 from docx.opc.exceptions import PackageNotFoundError
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
@@ -14,9 +13,9 @@ from starlette.responses import FileResponse
 
 from translation_service.config import (
     get_ollama_model,
-    get_temperature,
-    get_reuse_threshold,
     get_reference_threshold,
+    get_reuse_threshold,
+    get_temperature,
 )
 from translation_service.database import create_tables, get_db
 from translation_service.document_pairing import import_and_save_document_pair
@@ -26,8 +25,8 @@ from translation_service.fuzzy_search import find_fuzzy_matches
 from translation_service.models import TranslationUnit
 from translation_service.ollama_service import (
     OllamaError,
-    generate_text,
     check_connection,
+    generate_text,
     model_exists,
 )
 from translation_service.translation_memory import find_exact_matches

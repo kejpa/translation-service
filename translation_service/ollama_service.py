@@ -50,7 +50,7 @@ def check_connection(
 
         return True
 
-    except Exception:
+    except ConnectionError:
         return False
 
 
