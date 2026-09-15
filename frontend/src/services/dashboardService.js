@@ -1,16 +1,7 @@
-// src/services/dashboardService.js
+import {get} from './api'
 
 export async function getHealth() {
-  return {
-    status: 'running',
-    database: 'connected',
-    docker: 'running',
-    ollama: 'connected',
-    model: 'gemma3:4b',
-    model_available: true,
-    reuse_threshold: 85,
-    reference_threshold: 30,
-  }
+  return await get('/health')
 }
 
 export async function getTranslationMemoryStatistics() {

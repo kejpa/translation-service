@@ -31,6 +31,13 @@ from translation_service.ollama_service import (
 )
 from translation_service.translation_memory import find_exact_matches
 from translation_service.translation_statistics import calculate_translation_statistics
+from fastapi.middleware.cors import (
+    CORSMiddleware,
+)
+
+from translation_service.config import (
+    get_allowed_origins,
+)
 
 VERSION = Path("VERSION").read_text(encoding="utf-8").strip()
 print("MAIN.PY LOADED")
@@ -91,6 +98,14 @@ app = FastAPI(
     description=PROJECT_DESCRIPTION,
     version=VERSION,
     lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=get_allowed_origins(),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 

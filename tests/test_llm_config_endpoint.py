@@ -28,7 +28,7 @@ def test_llm_config_endpoint_returns_defaults(
         "model": "gemma3:4b",
         "temperature": 0,
         "reuse_threshold": 85,
-        "reference_threshold": 30,
+        "reference_threshold": 60,
     }
 
 
