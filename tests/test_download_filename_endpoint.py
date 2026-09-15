@@ -1,10 +1,10 @@
+from io import BytesIO
+
+from docx import Document
 from starlette.testclient import TestClient
 
 from tests.helpers import add_translation, create_docx
 from translation_service.main import app
-from io import BytesIO
-
-from docx import Document
 
 client = TestClient(app)
 

@@ -4,8 +4,8 @@ import pytest
 
 from translation_service.ollama_service import (
     OllamaError,
-    generate_text,
     check_connection,
+    generate_text,
     model_exists,
 )
 
@@ -87,7 +87,7 @@ def test_check_ollama_connection_returns_false_on_error(
 ):
     class FakeClient:
         def list(self):
-            raise Exception()
+            raise ConnectionError()
 
     monkeypatch.setattr(
         "translation_service.ollama_service.ollama.Client",
