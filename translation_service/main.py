@@ -6,13 +6,18 @@ from tempfile import NamedTemporaryFile
 
 from docx.opc.exceptions import PackageNotFoundError
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import (
+    CORSMiddleware,
+)
 from pydantic import BaseModel
-from sqlalchemy import text, func
+from sqlalchemy import func, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from starlette.responses import FileResponse
 
 from translation_service.config import (
+    get_allowed_origins,
+    get_database_url,
     get_ollama_model,
     get_reference_threshold,
     get_reuse_threshold,
@@ -23,7 +28,7 @@ from translation_service.document_pairing import import_and_save_document_pair
 from translation_service.docx_exporter import translate_document, translate_paragraphs
 from translation_service.docx_parser import extract_all_paragraphs, extract_paragraphs
 from translation_service.fuzzy_search import find_fuzzy_matches
-from translation_service.models import TranslationUnit, DocumentPair
+from translation_service.models import DocumentPair, TranslationUnit
 from translation_service.ollama_service import (
     OllamaError,
     check_connection,
@@ -32,13 +37,6 @@ from translation_service.ollama_service import (
 )
 from translation_service.translation_memory import find_exact_matches
 from translation_service.translation_statistics import calculate_translation_statistics
-from fastapi.middleware.cors import (
-    CORSMiddleware,
-)
-
-from translation_service.config import (
-    get_allowed_origins,
-)
 
 VERSION = Path("VERSION").read_text(encoding="utf-8").strip()
 print("MAIN.PY LOADED")
@@ -561,15 +559,32 @@ def delete_translation_unit(
 def translation_memory_statistics(
     db: Session = Depends(get_db),
 ):
-    document_pairs = db.query(
-        func.count(DocumentPair.id),
-    ).scalar()
+    try:
+        database_url = get_database_url()
+        database_name = Path(
+            database_url.replace(
+                "sqlite:///",
+                "",
+            ),
+        ).name
 
-    translation_units = db.query(
-        func.count(TranslationUnit.id),
-    ).scalar()
+        document_pairs = db.query(
+            func.count(DocumentPair.id),
+        ).scalar()
 
-    return {
-        "document_pairs": document_pairs,
-        "translation_units": translation_units,
-    }
+        translation_units = db.query(
+            func.count(TranslationUnit.id),
+        ).scalar()
+
+        return {
+            "database_type": "SQLite",
+            "database_name": database_name,
+            "document_pairs": document_pairs,
+            "translation_units": translation_units,
+        }
+
+    except SQLAlchemyError as error:
+        raise HTTPException(
+            status_code=503,
+            detail="Database unavailable",
+        ) from error
