@@ -476,6 +476,7 @@ def llm_test(
 def llm_config():
     return {
         "model": get_ollama_model(),
+        "model_available": model_exists(),
         "temperature": get_temperature(),
         "reuse_threshold": get_reuse_threshold(),
         "reference_threshold": get_reference_threshold(),
