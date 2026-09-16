@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DashboardView from '../views/DashboardView.vue'
+import ImportView from "@/views/ImportView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,6 +9,11 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: DashboardView,
+    },
+    {
+      path: '/import',
+      name: 'import',
+      component: ImportView,
     },
     {
       path: '/about',

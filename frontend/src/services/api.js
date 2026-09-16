@@ -9,3 +9,16 @@ export async function get(path) {
 
   return await response.json()
 }
+
+export async function postFormData(path, formData,) {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'POST', body: formData,
+  },)
+
+  if (!response.ok) {
+    const body = await response.json()
+
+    throw new Error(body.detail ?? `API request failed: ${response.status}`,)
+  }
+  return await response.json()
+}
