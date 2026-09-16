@@ -25,7 +25,6 @@ def test_health_endpoint(
     assert response.json() == {
         "status": "running",
         "database": "connected",
-        "docker": "running",
         "ollama": "connected",
         "model": "gemma3:4b",
         "model_available": True,

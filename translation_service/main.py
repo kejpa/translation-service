@@ -8,6 +8,7 @@ from docx.opc.exceptions import PackageNotFoundError
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 from sqlalchemy import text, func
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from starlette.responses import FileResponse
 
@@ -61,6 +62,20 @@ class UpdateTranslationUnitRequest(
     target_text: str
 
 
+def check_database_connection(
+    db: Session,
+) -> bool:
+    try:
+        db.execute(
+            text("SELECT 1"),
+        )
+
+        return True
+
+    except SQLAlchemyError:
+        return False
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print(
@@ -110,12 +125,15 @@ app.add_middleware(
 
 
 @app.get("/")
-def root():
+def root(
+    db: Session = Depends(get_db),
+):
     return {
         "service": PROJECT_NAME,
         "version": VERSION,
         "status": "running",
-        "docker": "running",
+        "database": ("connected" if check_database_connection(db) else "disconnected"),
+        "ollama": ("connected" if check_connection() else "disconnected"),
     }
 
 
@@ -123,12 +141,9 @@ def root():
 def health(
     db: Session = Depends(get_db),
 ):
-    db.execute(text("SELECT 1"))
-
     return {
         "status": "running",
-        "database": "connected",
-        "docker": "running",
+        "database": ("connected" if check_database_connection(db) else "disconnected"),
         "ollama": ("connected" if check_connection() else "disconnected"),
         "model": get_ollama_model(),
         "model_available": model_exists(),
