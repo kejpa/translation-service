@@ -1,12 +1,12 @@
 import {get} from './api'
 
-export async function getHealth() {
-  return await get('/health')
+export async function getServiceStatus() {
+  return await get('/')
 }
 
 export async function getTranslationMemoryStatistics() {
-  return {
-    documentPairs: 12,
-    translationUnits: 8421,
-  }
+  return await get('/translation-memory/statistics')
+}
+export async function getTranslationConfiguration() {
+  return await get('/llm/config')
 }
