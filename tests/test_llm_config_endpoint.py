@@ -17,7 +17,10 @@ def test_llm_config_endpoint_returns_defaults(
         "TEMPERATURE",
         raising=False,
     )
-
+    monkeypatch.setattr(
+        "translation_service.main.model_exists",
+        lambda: True,
+    )
     response = client.get(
         "/llm/config",
     )
@@ -25,10 +28,11 @@ def test_llm_config_endpoint_returns_defaults(
     assert response.status_code == 200
 
     assert response.json() == {
+        "model_available": True,
         "model": "gemma3:4b",
         "temperature": 0,
         "reuse_threshold": 85,
-        "reference_threshold": 30,
+        "reference_threshold": 60,
     }
 
 
@@ -54,6 +58,10 @@ def test_llm_config_endpoint_returns_environment_values(
         "REFERENCE_THRESHOLD",
         "60",
     )
+    monkeypatch.setattr(
+        "translation_service.main.model_exists",
+        lambda: False,
+    )
 
     response = client.get(
         "/llm/config",
@@ -62,6 +70,7 @@ def test_llm_config_endpoint_returns_environment_values(
     assert response.status_code == 200
 
     assert response.json() == {
+        "model_available": False,
         "model": "qwen2.5:7b",
         "temperature": 0.2,
         "reuse_threshold": 95,

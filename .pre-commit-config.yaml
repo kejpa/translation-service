@@ -28,3 +28,15 @@ repos:
         entry: uv run pytest
         language: system
         pass_filenames: false
+
+      - id: frontend-lint
+        name: frontend-lint
+        entry: cmd -c 'cd frontend && npm run lint'
+        language: system
+        pass_filenames: false
+
+      - id: frontend-format
+        name: frontend-format
+        entry: cmd -c 'cd frontend && npm run format'
+        language: system
+        pass_filenames: false

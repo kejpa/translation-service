@@ -25,10 +25,9 @@ def test_health_endpoint(
     assert response.json() == {
         "status": "running",
         "database": "connected",
-        "docker": "running",
         "ollama": "connected",
         "model": "gemma3:4b",
         "model_available": True,
         "reuse_threshold": 85,
-        "reference_threshold": 30,
+        "reference_threshold": 60,
     }

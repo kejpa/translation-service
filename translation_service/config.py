@@ -1,5 +1,17 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+def get_allowed_origins() -> list[str]:
+    origins = os.getenv("ALLOWED_ORIGINS")
+    if not origins:
+        return []
+
+    return [origin.strip() for origin in origins.split(",") if origin.strip()]
+
 
 def get_database_url() -> str:
     return os.getenv(

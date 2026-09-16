@@ -62,8 +62,12 @@ def model_exists(
             host=get_ollama_base_url(),
         )
 
-    models = client.list()
+    try:
+        models = client.list()
 
-    configured_model = get_ollama_model()
+        configured_model = get_ollama_model()
 
-    return any(model["model"] == configured_model for model in models["models"])
+        return any(model["model"] == configured_model for model in models["models"])
+
+    except ConnectionError:
+        return False
