@@ -7,7 +7,7 @@ from tempfile import NamedTemporaryFile
 from docx.opc.exceptions import PackageNotFoundError
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
-from sqlalchemy import text
+from sqlalchemy import text, func
 from sqlalchemy.orm import Session
 from starlette.responses import FileResponse
 
@@ -22,7 +22,7 @@ from translation_service.document_pairing import import_and_save_document_pair
 from translation_service.docx_exporter import translate_document, translate_paragraphs
 from translation_service.docx_parser import extract_all_paragraphs, extract_paragraphs
 from translation_service.fuzzy_search import find_fuzzy_matches
-from translation_service.models import TranslationUnit
+from translation_service.models import TranslationUnit, DocumentPair
 from translation_service.ollama_service import (
     OllamaError,
     check_connection,
@@ -539,3 +539,21 @@ def delete_translation_unit(
     db.delete(unit)
 
     db.commit()
+
+
+@app.get("/translation-memory/statistics")
+def translation_memory_statistics(
+    db: Session = Depends(get_db),
+):
+    document_pairs = db.query(
+        func.count(DocumentPair.id),
+    ).scalar()
+
+    translation_units = db.query(
+        func.count(TranslationUnit.id),
+    ).scalar()
+
+    return {
+        "document_pairs": document_pairs,
+        "translation_units": translation_units,
+    }
