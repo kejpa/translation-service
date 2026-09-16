@@ -205,3 +205,17 @@ def test_import_rejects_different_number_of_segments():
             "Source and target documents contain different numbers of paragraphs"
         )
     }
+
+
+def test_document_pair_sets_imported_at(
+    db,
+):
+    document_pair = DocumentPair(
+        source_document="source.docx",
+        target_document="target.docx",
+    )
+
+    db.add(document_pair)
+    db.commit()
+
+    assert document_pair.imported_at is not None

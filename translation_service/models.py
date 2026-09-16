@@ -1,4 +1,6 @@
-from sqlalchemy import ForeignKey, Integer, String, Text
+from datetime import datetime, UTC
+
+from sqlalchemy import ForeignKey, Integer, String, Text, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -12,6 +14,10 @@ class DocumentPair(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     source_document: Mapped[str] = mapped_column(String)
     target_document: Mapped[str] = mapped_column(String)
+    imported_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(UTC),
+    )
 
 
 class TranslationUnit(Base):
