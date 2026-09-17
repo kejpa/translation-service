@@ -12,6 +12,7 @@ import {RouterLink} from 'vue-router'
       <RouterLink to="/">Dashboard</RouterLink>
       <RouterLink to="/import">Import document pair</RouterLink>
       <RouterLink to="/translate">Translate document</RouterLink>
+      <RouterLink to="/translation-maintenance">Translation maintenance</RouterLink>
       <RouterLink to="/about">About</RouterLink>
     </nav>
   </aside>
