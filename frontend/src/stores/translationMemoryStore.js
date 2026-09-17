@@ -1,5 +1,5 @@
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
+import {ref, toRaw} from 'vue'
+import {defineStore} from 'pinia'
 import {searchTranslationUnits} from "@/services/translationMemoryService.js";
 
 export const useTranslationMemoryStore =
@@ -25,25 +25,24 @@ export const useTranslationMemoryStore =
         error.value = null
       }
 
-  async function search() {
-  loading.value = true
+      async function search() {
+        loading.value = true
 
-  error.value = null
+        error.value = null
 
-  try {
-    translationUnits.value =
-      await searchTranslationUnits(
-        query.value,
-      )
-  }
-  catch (err) {
-    error.value =
-      err.message ?? 'Search failed'
-  }
-  finally {
-    loading.value = false
-  }
-}
+        try {
+          translationUnits.value =
+            await searchTranslationUnits(
+              query.value,
+            )
+        } catch (err) {
+          error.value =
+            err.message ?? 'Search failed'
+        } finally {
+          loading.value = false
+        }
+      }
+
       async function update() {
         //
         // implementeras senare
@@ -57,7 +56,7 @@ export const useTranslationMemoryStore =
       }
 
       function selectUnit(unit) {
-        selectedUnit.value = unit
+        selectedUnit.value = structuredClone(toRaw( unit))
       }
 
       return {
