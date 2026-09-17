@@ -1,7 +1,8 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 import DashboardView from '../views/DashboardView.vue'
 import ImportView from "@/views/ImportView.vue";
 import TranslateView from "@/views/TranslateView.vue";
+import TranslationMaintenanceView from "@/views/TranslationMaintenanceView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,6 +21,11 @@ const router = createRouter({
       path: '/translate',
       name: 'translate',
       component: TranslateView,
+    },
+    {
+      path: '/translation-maintenance',
+      name: 'translation-maintenance',
+      component: TranslationMaintenanceView,
     },
     {
       path: '/about',

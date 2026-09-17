@@ -355,12 +355,6 @@ async def translate_docx(
         temp_path.unlink(missing_ok=True)
 
 
-# TODO:
-# Remove generated output files after response
-# has been sent to the client.
-##        output_path.unlink(missing_ok=True)
-
-
 @app.get("/translations/exact")
 def get_exact_matches(
     source_text: str,

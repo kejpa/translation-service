@@ -7,6 +7,7 @@ export async function getServiceStatus() {
 export async function getTranslationMemoryStatistics() {
   return await get('/translation-memory/statistics')
 }
+
 export async function getTranslationConfiguration() {
   return await get('/llm/config')
 }
