@@ -1,5 +1,31 @@
 <script setup>
+import {computed, ref} from 'vue'
+import {useTranslateStore} from '@/stores/translateStore'
+import {storeToRefs} from "pinia";
 
+const translateStore = useTranslateStore()
+const {sourceFile, outputFilename, loading, error} = storeToRefs(translateStore)
+const sourceFileInput = ref(null)
+
+function onSourceFileChanged(event) {
+  translateStore.setSourceFile(
+    event.target.files?.[0] ?? null,
+  )
+}
+
+function clearForm() {
+  translateStore.clear()
+
+  if (sourceFileInput.value) {
+    sourceFileInput.value.value = ''
+  }
+}
+
+const canTranslate = computed(
+  () =>
+    sourceFile.value !== null &&
+    !loading.value,
+)
 </script>
 
 <template>
@@ -11,8 +37,9 @@
         Source document
 
         <input
-          type="file"
+          ref="sourceFileInput"
           accept=".docx"
+          type="file"
           @change="onSourceFileChanged"
         >
       </label>
@@ -22,8 +49,8 @@
 
         <input
           v-model="outputFilename"
-          type="text"
           placeholder="translated.docx"
+          type="text"
         >
       </label>
 
@@ -36,8 +63,9 @@
         </button>
 
         <button
-          type="button"
           :disabled="!canTranslate"
+          type="button"
+          @click="translateStore.translateDocument()"
         >
           Translate
         </button>
@@ -45,31 +73,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { computed, ref } from 'vue'
-
-const sourceFile = ref(null)
-
-const outputFilename = ref(
-  'translated.docx',
-)
-
-function onSourceFileChanged(event) {
-  sourceFile.value =
-    event.target.files?.[0] ?? null
-}
-
-function clearForm() {
-  sourceFile.value = null
-  outputFilename.value =
-    'translated.docx'
-}
-
-const canTranslate = computed(
-  () => sourceFile.value !== null,
-)
-</script>
 
 <style scoped>
 .translate-view {
@@ -85,13 +88,11 @@ const canTranslate = computed(
 
   padding: 1rem;
 
-  border: 1px solid
-    var(--color-border);
+  border: 1px solid var(--color-border);
 
   border-radius: 0.5rem;
 
-  background:
-    var(--color-surface);
+  background: var(--color-surface);
 }
 
 label {
@@ -106,11 +107,9 @@ label {
 input[type='text'] {
   padding: 0.5rem;
 
-  border: 1px solid
-    var(--color-border);
+  border: 1px solid var(--color-border);
 
-  background:
-    var(--color-background);
+  background: var(--color-background);
 
   color: var(--color-text);
 }
