@@ -15,11 +15,11 @@ onMounted(() => {
 <template>
   <h1>Dashboard</h1>
   <div class="dashboard">
-    <DashboardCard title="Service Status" :data="health" />
+    <DashboardCard :data="health" title="Service Status"/>
 
-    <DashboardCard title="Translation Configuration" :data="configuration" />
+    <DashboardCard :data="configuration" title="Translation Configuration"/>
 
-    <DashboardCard title="Translation Memory" :data="translationMemory" />
+    <DashboardCard :data="translationMemory" title="Translation Memory"/>
   </div>
 </template>
 

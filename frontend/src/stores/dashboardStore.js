@@ -11,7 +11,7 @@ const healthLabelMap = {
   status: 'Application',
   database: 'Database',
   service: 'Service name',
-  version:"Version",
+  version: "Version",
   ollama: 'Ollama',
   model: 'Model',
   model_available: 'Model Available',

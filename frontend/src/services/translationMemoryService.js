@@ -1,4 +1,4 @@
-import {get, put,remove} from './api'
+import {get, put, remove} from './api'
 
 export async function searchTranslationUnits(
   query,
@@ -19,10 +19,10 @@ export async function updateTranslationUnit(
     `/translation-units/${translationUnit.id}`,
     {
       source_text:
-        translationUnit.source_text,
+      translationUnit.source_text,
 
       target_text:
-        translationUnit.target_text,
+      translationUnit.target_text,
     },
   )
 }

@@ -22,6 +22,7 @@ export async function postFormData(path, formData,) {
   }
   return await response.json()
 }
+
 export async function put(
   path,
   body,
@@ -46,12 +47,13 @@ export async function put(
 
     throw new Error(
       data.detail ??
-        `API request failed: ${response.status}`,
+      `API request failed: ${response.status}`,
     )
   }
 
   return await response.json()
 }
+
 export async function remove(
   path,
 ) {
@@ -71,8 +73,7 @@ export async function remove(
 
       message =
         body.detail ?? message
-    }
-    catch {
+    } catch {
       //
       // Ignore
       //

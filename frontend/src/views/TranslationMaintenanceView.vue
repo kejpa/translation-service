@@ -51,47 +51,48 @@ function confirmDelete() {
       {{ error }}
     </div>
     <div
-  v-if="selectedUnit"
-  class="card"
->
-  <h2>Edit Translation Unit</h2>
+      v-if="selectedUnit"
+      class="card"
+    >
+      <h2>Edit Translation Unit</h2>
 
-  <label>
-    Source text
+      <label>
+        Source text
 
-    <textarea
-      v-model="
+        <textarea
+          v-model="
         selectedUnit.source_text
       "
-      rows="4"
-    />
-  </label>
+          rows="4"
+        />
+      </label>
 
-  <label>
-    Target text
+      <label>
+        Target text
 
-    <textarea
-      v-model="
+        <textarea
+          v-model="
         selectedUnit.target_text
       "
-      rows="4"
-    />
-  </label>
+          rows="4"
+        />
+      </label>
 
-  <div class="actions">
-<button
-  type="button"
-  @click="translationMemoryStore.update()"
->
-  Save
-</button>
-<button
-  type="button"
-  @click="confirmDelete"
->
-  Delete
-</button>  </div>
-</div>
+      <div class="actions">
+        <button
+          type="button"
+          @click="translationMemoryStore.update()"
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          @click="confirmDelete"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
 
     <div class="card">
       <table>
@@ -104,18 +105,18 @@ function confirmDelete() {
         </thead>
 
         <tbody>
-<tr
-  v-for="unit in translationUnits"
-  :key="unit.id"
-  :class="{ 'selected': unit.id === selectedUnit?.id }"
-  @click="translationMemoryStore.selectUnit(unit)"
->
-  <td>{{ unit.id }}</td>
+        <tr
+          v-for="unit in translationUnits"
+          :key="unit.id"
+          :class="{ 'selected': unit.id === selectedUnit?.id }"
+          @click="translationMemoryStore.selectUnit(unit)"
+        >
+          <td>{{ unit.id }}</td>
 
-  <td>{{ unit.source_text }}</td>
+          <td>{{ unit.source_text }}</td>
 
-  <td>{{ unit.target_text }}</td>
-</tr>
+          <td>{{ unit.target_text }}</td>
+        </tr>
         <tr
           v-if="
       !loading &&
@@ -138,9 +139,11 @@ function confirmDelete() {
   flex-direction: column;
   gap: 1rem;
 }
+
 button {
   margin-left: 0.5rem;
 }
+
 .card {
   padding: 1rem;
 
@@ -191,6 +194,7 @@ td {
 thead {
   border-bottom: 1px solid var(--color-border);
 }
+
 tbody tr {
   cursor: pointer;
 }
@@ -198,9 +202,11 @@ tbody tr {
 tbody tr:hover {
   background: var(--color-surface-alternating);
 }
+
 tbody tr:nth-child(even) {
   background: var(--color-surface-alternating);
 }
+
 .selected {
   background: var(--color-surface-highlighted) !important;
 }

@@ -39,6 +39,7 @@ import {RouterLink} from 'vue-router'
 .menu nav a {
   color: var(--color-text);
 }
+
 .menu nav a {
   position: relative;
   display: block;

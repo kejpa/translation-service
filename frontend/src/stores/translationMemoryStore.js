@@ -47,59 +47,54 @@ export const useTranslationMemoryStore =
         }
       }
 
-async function update() {
-  loading.value = true
+      async function update() {
+        loading.value = true
 
-  error.value = null
+        error.value = null
 
-  try {
-    await updateTranslationUnit(
-      selectedUnit.value,
-    )
+        try {
+          await updateTranslationUnit(
+            selectedUnit.value,
+          )
 
-    await search()
-  }
+          await search()
+        } catch (err) {
+          error.value =
+            err.message ??
+            'Update failed'
+        } finally {
+          loading.value = false
+        }
+      }
 
-  catch (err) {
-    error.value =
-      err.message ??
-      'Update failed'
-  }
+      async function remove() {
+        if (!selectedUnit.value) {
+          return
+        }
 
-  finally {
-    loading.value = false
-  }
-}
+        loading.value = true
 
- async function remove() {
-  if (!selectedUnit.value) {
-    return
-  }
+        error.value = null
 
-  loading.value = true
+        try {
+          await deleteTranslationUnit(
+            selectedUnit.value.id,
+          )
 
-  error.value = null
+          selectedUnit.value = null
 
-  try {
-    await deleteTranslationUnit(
-      selectedUnit.value.id,
-    )
+          await search()
+        } catch (err) {
+          error.value =
+            err.message ??
+            'Delete failed'
+        } finally {
+          loading.value = false
+        }
+      }
 
-    selectedUnit.value = null
-
-    await search()
-  }
-  catch (err) {
-    error.value =
-      err.message ??
-      'Delete failed'
-  }
-  finally {
-    loading.value = false
-  }
-}
       function selectUnit(unit) {
-        selectedUnit.value = structuredClone(toRaw( unit))
+        selectedUnit.value = structuredClone(toRaw(unit))
       }
 
       return {

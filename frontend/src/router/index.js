@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 import DashboardView from '../views/DashboardView.vue'
 import ImportView from "@/views/ImportView.vue";
 import TranslateView from "@/views/TranslateView.vue";

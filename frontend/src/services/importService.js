@@ -1,4 +1,4 @@
-import { postFormData } from './api'
+import {postFormData} from './api'
 
 export async function importDocumentPair(
   sourceFile,

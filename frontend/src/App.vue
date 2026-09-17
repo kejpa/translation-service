@@ -1,14 +1,14 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import {RouterView} from 'vue-router'
 import AppMenu from './components/AppMenu.vue'
 </script>
 
 <template>
   <div class="app-layout">
-    <AppMenu />
+    <AppMenu/>
 
     <main class="content">
-      <RouterView />
+      <RouterView/>
     </main>
   </div>
 </template>
