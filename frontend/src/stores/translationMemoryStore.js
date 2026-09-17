@@ -1,6 +1,10 @@
 import {ref, toRaw} from 'vue'
 import {defineStore} from 'pinia'
-import {searchTranslationUnits} from "@/services/translationMemoryService.js";
+import {
+  deleteTranslationUnit,
+  searchTranslationUnits,
+  updateTranslationUnit
+} from "@/services/translationMemoryService.js";
 
 export const useTranslationMemoryStore =
   defineStore(
@@ -43,18 +47,57 @@ export const useTranslationMemoryStore =
         }
       }
 
-      async function update() {
-        //
-        // implementeras senare
-        //
-      }
+async function update() {
+  loading.value = true
 
-      async function remove() {
-        //
-        // implementeras senare
-        //
-      }
+  error.value = null
 
+  try {
+    await updateTranslationUnit(
+      selectedUnit.value,
+    )
+
+    await search()
+  }
+
+  catch (err) {
+    error.value =
+      err.message ??
+      'Update failed'
+  }
+
+  finally {
+    loading.value = false
+  }
+}
+
+ async function remove() {
+  if (!selectedUnit.value) {
+    return
+  }
+
+  loading.value = true
+
+  error.value = null
+
+  try {
+    await deleteTranslationUnit(
+      selectedUnit.value.id,
+    )
+
+    selectedUnit.value = null
+
+    await search()
+  }
+  catch (err) {
+    error.value =
+      err.message ??
+      'Delete failed'
+  }
+  finally {
+    loading.value = false
+  }
+}
       function selectUnit(unit) {
         selectedUnit.value = structuredClone(toRaw( unit))
       }

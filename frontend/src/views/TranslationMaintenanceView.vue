@@ -5,6 +5,15 @@ import {storeToRefs} from "pinia";
 const translationMemoryStore = useTranslationMemoryStore()
 const {query, translationUnits, loading, error, selectedUnit,} = storeToRefs(translationMemoryStore)
 
+function confirmDelete() {
+  if (
+    window.confirm(
+      'Delete translation unit?',
+    )
+  ) {
+    translationMemoryStore.remove()
+  }
+}
 </script>
 <template>
   <div class="translation-memory-view">
@@ -70,14 +79,18 @@ const {query, translationUnits, loading, error, selectedUnit,} = storeToRefs(tra
   </label>
 
   <div class="actions">
-    <button type="button">
-      Save
-    </button>
-
-    <button type="button">
-      Delete
-    </button>
-  </div>
+<button
+  type="button"
+  @click="translationMemoryStore.update()"
+>
+  Save
+</button>
+<button
+  type="button"
+  @click="confirmDelete"
+>
+  Delete
+</button>  </div>
 </div>
 
     <div class="card">
@@ -94,7 +107,7 @@ const {query, translationUnits, loading, error, selectedUnit,} = storeToRefs(tra
 <tr
   v-for="unit in translationUnits"
   :key="unit.id"
-  :class="{ 'selected': unit.id === selectedUnit.id }"
+  :class="{ 'selected': unit.id === selectedUnit?.id }"
   @click="translationMemoryStore.selectUnit(unit)"
 >
   <td>{{ unit.id }}</td>
@@ -189,6 +202,6 @@ tbody tr:nth-child(even) {
   background: var(--color-surface-alternating);
 }
 .selected {
-  background: var(--color-surface-highlighted);
+  background: var(--color-surface-highlighted) !important;
 }
 </style>
