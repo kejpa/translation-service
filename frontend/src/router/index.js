@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DashboardView from '../views/DashboardView.vue'
 import ImportView from "@/views/ImportView.vue";
+import TranslateView from "@/views/TranslateView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,6 +15,11 @@ const router = createRouter({
       path: '/import',
       name: 'import',
       component: ImportView,
+    },
+    {
+      path: '/translate',
+      name: 'translate',
+      component: TranslateView,
     },
     {
       path: '/about',
