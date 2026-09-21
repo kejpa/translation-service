@@ -17,9 +17,9 @@ def test_fuzzy_match_returns_exact_match_with_highest_score(
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text="Hei maailma",
-            normalized_target_text="Hei maailma",
+            normalized_source_text="Hei maailma",
             target_text="Hej världen",
-            normalized_source_text="Hej världen",
+            normalized_target_text="Hej världen",
         )
     )
 

@@ -3,7 +3,6 @@ from io import BytesIO
 from docx import Document
 
 from translation_service.models import DocumentPair, TranslationUnit
-from translation_service.normalization import normalize_text
 
 
 def create_docx(*paragraphs: str) -> bytes:
@@ -38,8 +37,8 @@ def add_translation(
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text=source_text,
-            normalized_source_text=normalize_text(target_text),
+            normalized_source_text=normalized_source_text,
             target_text=target_text,
-            normalized_target_text=normalize_text(source_text),
+            normalized_target_text=normalized_target_text,
         )
     )
