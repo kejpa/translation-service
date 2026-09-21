@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from translation_service.docx_parser import extract_paragraphs
 from translation_service.models import DocumentPair, TranslationUnit
+from translation_service.normalization import normalize_text
 
 
 def pair_paragraphs(
@@ -51,7 +52,13 @@ def save_document_pairs(
             TranslationUnit(
                 document_pair_id=document_pair.id,
                 source_text=source_text,
+                normalized_source_text=normalize_text(
+                    source_text,
+                ),
                 target_text=target_text,
+                normalized_target_text=normalize_text(
+                    target_text,
+                ),
             )
         )
 

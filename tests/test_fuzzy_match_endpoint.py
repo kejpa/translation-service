@@ -22,17 +22,23 @@ def test_fuzzy_match_endpoint_returns_matches_sorted_by_score(
             TranslationUnit(
                 document_pair_id=document_pair.id,
                 source_text="Hei maailma",
+                normalized_source_text="Hei maailma",
                 target_text="Hej världen",
+                normalized_target_text="Hej världen",
             ),
             TranslationUnit(
                 document_pair_id=document_pair.id,
                 source_text="Hei maailmaa",
+                normalized_source_text="Hei maailmaa",
                 target_text="Hej världen!",
+                normalized_target_text="Hej världen!",
             ),
             TranslationUnit(
                 document_pair_id=document_pair.id,
                 source_text="Terve maailma",
+                normalized_source_text="Terve maailma",
                 target_text="God dag världen",
+                normalized_target_text="God dag världen",
             ),
         ]
     )

@@ -13,8 +13,12 @@ def test_translation_statistics_endpoint(
     add_translation(
         db,
         "Hei maailma",
+        "Hei maailma",
+        "Hej världen",
         "Hej världen",
     )
+    db.flush()
+
     response = client.post(
         "/docx/statistics",
         files={
@@ -133,7 +137,9 @@ def test_translation_statistics_counts_fuzzy_high_matches(
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text="Hei maailma",
+            normalized_source_text="Hei maailma",
             target_text="Hej världen",
+            normalized_target_text="Hej världen",
         )
     )
 
@@ -187,12 +193,16 @@ def test_translation_statistics_counts_mixed_translation_statuses(
             TranslationUnit(
                 document_pair_id=document_pair.id,
                 source_text="Hei maailma",
+                normalized_source_text="Hei maailma",
                 target_text="Hej världen",
+                normalized_target_text="Hej världen",
             ),
             TranslationUnit(
                 document_pair_id=document_pair.id,
                 source_text="Miten voit",
+                normalized_source_text="Miten voit",
                 target_text="Hur mår du",
+                normalized_target_text="Hur mår du",
             ),
         ]
     )

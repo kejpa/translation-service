@@ -54,8 +54,11 @@ def test_translate_docx_returns_translation_job_result(
     add_translation(
         db,
         "Hei maailma",
+        "Hei maailma",
+        "Hej världen",
         "Hej världen",
     )
+    db.flush()
 
     response = client.post(
         "/docx/translate",

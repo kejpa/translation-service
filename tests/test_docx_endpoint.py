@@ -84,6 +84,8 @@ def test_build_translated_document_applies_fuzzy_high_indicator():
             ParagraphTranslation(
                 source_text="Hei maailma",
                 target_text="Hej världen",
+                normalized_source_text="Hei maailma",
+                normalized_target_text="Hej världen",
                 status=TranslationStatus.FUZZY_HIGH,
             ),
         ]
@@ -110,6 +112,8 @@ def test_build_translated_document_applies_llm_indicator():
             ParagraphTranslation(
                 source_text="Hei maailma",
                 target_text="Hej världen",
+                normalized_source_text="Hei maailma",
+                normalized_target_text="Hej världen",
                 status=TranslationStatus.LLM,
             ),
         ]
@@ -136,6 +140,8 @@ def test_build_translated_document_does_not_apply_indicator_for_translated():
             ParagraphTranslation(
                 source_text="Hei maailma",
                 target_text="Hej världen",
+                normalized_source_text="Hei maailma",
+                normalized_target_text="Hej världen",
                 status=TranslationStatus.TRANSLATED,
             ),
         ]

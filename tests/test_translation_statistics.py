@@ -15,17 +15,23 @@ def test_calculate_translation_statistics():
         [
             ParagraphTranslation(
                 source_text="Hei maailma",
+                normalized_source_text="Hei maailma",
                 target_text="Hej världen",
+                normalized_target_text="Hej världen",
                 status=TranslationStatus.TRANSLATED,
             ),
             ParagraphTranslation(
                 source_text="",
+                normalized_source_text="",
                 target_text="",
+                normalized_target_text="",
                 status=TranslationStatus.EMPTY,
             ),
             ParagraphTranslation(
                 source_text="Tuntematon",
+                normalized_source_text="Tuntematon",
                 target_text="Tuntematon",
+                normalized_target_text="Tuntematon",
                 status=TranslationStatus.MISSING,
             ),
         ]
@@ -61,7 +67,9 @@ def test_calculate_statistics_counts_fuzzy_high():
         [
             ParagraphTranslation(
                 source_text="Hei maailma",
+                normalized_source_text="Hei maailma",
                 target_text="Hej världen",
+                normalized_target_text="Hej världen",
                 status=TranslationStatus.FUZZY_HIGH,
             ),
         ]

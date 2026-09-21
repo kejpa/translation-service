@@ -13,14 +13,19 @@ def test_search_translation_units(
     add_translation(
         db,
         "Hei maailma",
+        "Hei maailma",
+        "Hej världen",
         "Hej världen",
     )
 
     add_translation(
         db,
         "Miten voit?",
+        "Miten voit?",
+        "Hur mår du?",
         "Hur mår du?",
     )
+    db.flush()
 
     response = client.get(
         "/translation-units?query=maailma",
@@ -52,8 +57,11 @@ def test_update_translation_unit(
     add_translation(
         db,
         "Hei maailma",
+        "Hei maailma",
+        "Hej världen",
         "Hej världen",
     )
+    db.flush()
 
     response = client.put(
         "/translation-units/1",
@@ -76,8 +84,11 @@ def test_delete_translation_unit(
     add_translation(
         db,
         "Hei maailma",
+        "Hei maailma",
+        "Hej världen",
         "Hej världen",
     )
+    db.flush()
 
     response = client.delete(
         "/translation-units/1",

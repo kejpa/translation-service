@@ -22,7 +22,9 @@ def test_exact_matches_endpoint_is_case_insensitive(db):
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text="Hei maailma",
+            normalized_source_text="Hei maailma",
             target_text="Hej världen",
+            normalized_target_text="Hej världen",
         )
     )
 
@@ -60,7 +62,9 @@ def test_exact_match_endpoint_is_case_insensitive_uppercase(db):
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text="Hei maailma",
+            normalized_source_text="Hei maailma",
             target_text="Hej världen",
+            normalized_target_text="Hej världen",
         )
     )
 
