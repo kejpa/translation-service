@@ -1,7 +1,17 @@
 from datetime import datetime, UTC
 
-from sqlalchemy import ForeignKey, Integer, String, Text, DateTime
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import (
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    mapped_column,
+)
 
 
 class Base(DeclarativeBase):
@@ -11,9 +21,19 @@ class Base(DeclarativeBase):
 class DocumentPair(Base):
     __tablename__ = "document_pairs"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    source_document: Mapped[str] = mapped_column(String)
-    target_document: Mapped[str] = mapped_column(String)
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+    )
+
+    source_document: Mapped[str] = mapped_column(
+        String,
+    )
+
+    target_document: Mapped[str] = mapped_column(
+        String,
+    )
+
     imported_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=lambda: datetime.now(UTC),
@@ -23,7 +43,22 @@ class DocumentPair(Base):
 class TranslationUnit(Base):
     __tablename__ = "translation_units"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    document_pair_id: Mapped[int] = mapped_column(ForeignKey("document_pairs.id"))
-    source_text: Mapped[str] = mapped_column(Text)
-    target_text: Mapped[str] = mapped_column(Text)
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+    )
+    document_pair_id: Mapped[int] = mapped_column(
+        ForeignKey("document_pairs.id"),
+    )
+    source_text: Mapped[str] = mapped_column(
+        Text,
+    )
+    normalized_source_text: Mapped[str] = mapped_column(
+        Text,
+    )
+    target_text: Mapped[str] = mapped_column(
+        Text,
+    )
+    normalized_target_text: Mapped[str] = mapped_column(
+        Text,
+    )

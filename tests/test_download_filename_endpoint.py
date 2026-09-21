@@ -15,6 +15,8 @@ def test_download_returns_docx(
     add_translation(
         db,
         "Hei maailma",
+        "Hei maailma",
+        "Hej världen",
         "Hej världen",
     )
 
@@ -53,6 +55,8 @@ def test_download_returns_translated_content(
     add_translation(
         db,
         "Hei maailma",
+        "Hei maailma",
+        "Hej världen",
         "Hej världen",
     )
 
@@ -92,12 +96,16 @@ def test_download_preserves_empty_paragraphs(
     add_translation(
         db,
         "Hei maailma",
+        "Hei maailma",
+        "Hej världen",
         "Hej världen",
     )
 
     add_translation(
         db,
         "Miten voit?",
+        "Miten voit?",
+        "Hur mår du?",
         "Hur mår du?",
     )
 
@@ -139,6 +147,8 @@ def test_translate_docx_uses_requested_filename(
     add_translation(
         db,
         "Hei maailma",
+        "Hei maailma",
+        "Hej världen",
         "Hej världen",
     )
 
@@ -167,6 +177,8 @@ def test_translate_docx_uses_default_filename(
     add_translation(
         db,
         "Hei maailma",
+        "Hei maailma",
+        "Hej världen",
         "Hej världen",
     )
 

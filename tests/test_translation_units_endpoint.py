@@ -13,12 +13,16 @@ def test_search_translation_units(
     add_translation(
         db,
         "Hei maailma",
+        "Hei maailma",
+        "Hej världen",
         "Hej världen",
     )
 
     add_translation(
         db,
         "Miten voit?",
+        "Miten voit?",
+        "Hur mår du?",
         "Hur mår du?",
     )
 
@@ -52,6 +56,8 @@ def test_update_translation_unit(
     add_translation(
         db,
         "Hei maailma",
+        "Hei maailma",
+        "Hej världen",
         "Hej världen",
     )
 
@@ -76,6 +82,8 @@ def test_delete_translation_unit(
     add_translation(
         db,
         "Hei maailma",
+        "Hei maailma",
+        "Hej världen",
         "Hej världen",
     )
 

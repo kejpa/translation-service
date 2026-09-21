@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from translation_service.fuzzy_match import FuzzyMatch
 from translation_service.models import TranslationUnit
+from translation_service.normalization import normalize_text
 
 
 def find_fuzzy_matches(
@@ -11,12 +12,15 @@ def find_fuzzy_matches(
 ) -> list[FuzzyMatch]:
     translation_units = db.query(TranslationUnit).all()
 
+    normalized_source_text = normalize_text(
+        source_text,
+    )
     matches: list[FuzzyMatch] = []
     for translation_unit in translation_units:
         score = float(
             fuzz.ratio(
-                source_text.lower(),
-                translation_unit.source_text.lower(),
+                translation_unit.normalized_source_text,
+                normalized_source_text,
             )
         )
 

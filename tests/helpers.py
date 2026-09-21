@@ -20,7 +20,9 @@ def create_docx(*paragraphs: str) -> bytes:
 def add_translation(
     db,
     source_text: str,
+    normalized_source_text: str,
     target_text: str,
+    normalized_target_text: str,
 ):
     document_pair = DocumentPair(
         source_document="source.docx",
@@ -30,12 +32,16 @@ def add_translation(
     db.add(document_pair)
     db.flush()
 
+    db.commit()
     db.add(
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text=source_text,
+            normalized_source_text=normalized_source_text,
             target_text=target_text,
+            normalized_target_text=normalized_target_text,
         )
     )
+    db.flush()
 
     db.commit()

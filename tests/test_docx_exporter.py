@@ -20,11 +20,15 @@ def test_create_translated_docx(tmp_path):
             ParagraphTranslation(
                 source_text="Hei maailma",
                 target_text="Hej världen",
+                normalized_source_text="Hei maailma",
+                normalized_target_text="Hej världen",
                 status=TranslationStatus.TRANSLATED,
             ),
             ParagraphTranslation(
                 source_text="Miten voit?",
                 target_text="Hur mår du?",
+                normalized_source_text="Miten voit?",
+                normalized_target_text="Hur mår du?",
                 status=TranslationStatus.TRANSLATED,
             ),
         ],
@@ -54,7 +58,9 @@ def test_translate_paragraphs(db):
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text="Hei maailma",
+            normalized_source_text="Hei maailma",
             target_text="Hej världen",
+            normalized_target_text="Hej världen",
         )
     )
 
@@ -91,7 +97,9 @@ def test_translate_document(
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text="Hei maailma",
+            normalized_source_text="Hei maailma",
             target_text="Hej världen",
+            normalized_target_text="Hej världen",
         )
     )
 
@@ -131,11 +139,15 @@ def test_create_translated_docx_marks_missing_translations(
             ParagraphTranslation(
                 source_text="Hei maailma",
                 target_text="Hej världen",
+                normalized_source_text="Hei maailma",
+                normalized_target_text="Hej världen",
                 status=TranslationStatus.TRANSLATED,
             ),
             ParagraphTranslation(
                 source_text="Tuntematon teksti",
                 target_text="Tuntematon teksti",
+                normalized_source_text="Tuntematon teksti",
+                normalized_target_text="Tuntematon teksti",
                 status=TranslationStatus.MISSING,
             ),
         ],
@@ -158,16 +170,22 @@ def test_build_translated_document():
             ParagraphTranslation(
                 source_text="Hei maailma",
                 target_text="Hej världen",
+                normalized_source_text="Hei maailma",
+                normalized_target_text="Hej världen",
                 status=TranslationStatus.TRANSLATED,
             ),
             ParagraphTranslation(
                 source_text="",
                 target_text="",
+                normalized_source_text="",
+                normalized_target_text="",
                 status=TranslationStatus.EMPTY,
             ),
             ParagraphTranslation(
                 source_text="Miten voit?",
                 target_text="Hur mår du?",
+                normalized_source_text="Miten voit?",
+                normalized_target_text="Hur mår du?",
                 status=TranslationStatus.TRANSLATED,
             ),
         ]
@@ -188,11 +206,15 @@ def test_build_translated_document_marks_missing_translations():
             ParagraphTranslation(
                 source_text="Hei maailma",
                 target_text="Hej världen",
+                normalized_source_text="Hei maailma",
+                normalized_target_text="Hej världen",
                 status=TranslationStatus.TRANSLATED,
             ),
             ParagraphTranslation(
                 source_text="Tuntematon teksti",
                 target_text="Tuntematon teksti",
+                normalized_source_text="Tuntematon teksti",
+                normalized_target_text="Tuntematon teksti",
                 status=TranslationStatus.MISSING,
             ),
         ]
@@ -227,7 +249,9 @@ def test_fuzzy_match_above_reuse_threshold_is_reused(
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text="Hei maailma",
+            normalized_source_text="Hei maailma",
             target_text="Hej världen",
+            normalized_target_text="Hej världen",
         )
     )
 
@@ -266,7 +290,9 @@ def test_fuzzy_match_below_reuse_threshold_is_not_reused(
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text="Hei maailma",
+            normalized_source_text="Hei maailma",
             target_text="Hej världen",
+            normalized_target_text="Hej världen",
         )
     )
 
@@ -308,7 +334,9 @@ def test_fuzzy_match_between_thresholds_becomes_fuzzy_low(
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text="Hei maailma",
+            normalized_source_text="Hei maailma",
             target_text="Hej världen",
+            normalized_target_text="Hej världen",
         )
     )
 

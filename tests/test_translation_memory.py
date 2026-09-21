@@ -15,12 +15,13 @@ def test_find_exact_matches(db):
 
     db.add(document_pair)
     db.flush()
-
     db.add(
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text="Hei maailma",
+            normalized_source_text="Hei maailma",
             target_text="Hej världen",
+            normalized_target_text="Hej världen",
         )
     )
 
@@ -59,7 +60,9 @@ def test_returns_first_match_when_multiple_exist(db):
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text="Hei maailma",
+            normalized_source_text="Hei maailma",
             target_text="Hej världen",
+            normalized_target_text="Hej världen",
         )
     )
 
@@ -67,7 +70,9 @@ def test_returns_first_match_when_multiple_exist(db):
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text="Hei maailma",
+            normalized_source_text="Hei maailma",
             target_text="Hej världen version 2",
+            normalized_target_text="Hej världen version 2",
         )
     )
 
@@ -100,7 +105,9 @@ def test_find_exact_matches_is_case_insensitive(db):
         TranslationUnit(
             document_pair_id=document_pair.id,
             source_text="Hei maailma",
+            normalized_source_text="Hei maailma",
             target_text="Hej världen",
+            normalized_target_text="Hej världen",
         )
     )
 

@@ -8,6 +8,7 @@ from translation_service.document_pairing import (
     save_document_pairs,
 )
 from translation_service.models import DocumentPair, TranslationUnit
+from translation_service.normalization import normalize_text
 
 
 def test_pair_paragraphs():
@@ -124,3 +125,23 @@ def test_import_and_save_document_pair(
 
     assert len(document_pairs) == 1
     assert len(units) == 2
+
+
+def test_import_stores_normalized_text(
+    db,
+):
+    unit = TranslationUnit(
+        document_pair_id=1,
+        source_text=("SW 14.4 Useamman kuin kahden sormen teippaus"),
+        normalized_source_text=normalize_text(
+            "SW 14.4 Useamman kuin kahden sormen teippaus"
+        ),
+        target_text=("SW 14.4 Tejpning av fler än två fingrar"),
+        normalized_target_text=normalize_text(
+            "SW 14.4 Tejpning av fler än två fingrar"
+        ),
+    )
+
+    assert unit.normalized_source_text == ("Useamman kuin kahden sormen teippaus")
+
+    assert unit.normalized_target_text == ("Tejpning av fler än två fingrar")
