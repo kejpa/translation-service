@@ -59,7 +59,6 @@ def test_download_returns_translated_content(
         "Hej världen",
         "Hej världen",
     )
-    db.flush()
 
     translate_response = client.post(
         "/docx/translate",
@@ -109,7 +108,6 @@ def test_download_preserves_empty_paragraphs(
         "Hur mår du?",
         "Hur mår du?",
     )
-    db.flush()
 
     translate_response = client.post(
         "/docx/translate",
@@ -153,7 +151,6 @@ def test_translate_docx_uses_requested_filename(
         "Hej världen",
         "Hej världen",
     )
-    db.flush()
 
     response = client.post(
         "/docx/translate",
@@ -184,7 +181,6 @@ def test_translate_docx_uses_default_filename(
         "Hej världen",
         "Hej världen",
     )
-    db.flush()
 
     response = client.post(
         "/docx/translate",

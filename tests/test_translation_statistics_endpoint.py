@@ -17,7 +17,6 @@ def test_translation_statistics_endpoint(
         "Hej världen",
         "Hej världen",
     )
-    db.flush()
 
     response = client.post(
         "/docx/statistics",

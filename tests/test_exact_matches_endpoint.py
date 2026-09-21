@@ -1,5 +1,9 @@
+from io import BytesIO
+
+from docx import Document
 from fastapi.testclient import TestClient
 
+from tests.helpers import add_translation, create_docx
 from translation_service.main import app
 from translation_service.models import (
     DocumentPair,
@@ -106,3 +110,42 @@ def test_exact_match_endpoint_returns_null_when_not_found(db):
     assert len(payload["matches"]) == 0
 
     assert payload["matches"] == []
+
+
+def test_translation_uses_new_rule_number(
+    db,
+):
+    add_translation(
+        db,
+        "SW 14.4\tUseamman kuin kahden sormen teippaus",
+        "Useamman kuin kahden sormen teippaus",
+        "SW 14.4\tTejpning av fler än två fingrar eller tår",
+        "Tejpning av fler än två fingrar eller tår",
+    )
+
+    response = client.post(
+        "/docx/translate",
+        files={
+            "file": (
+                "source.docx",
+                create_docx(
+                    "SW 27.8\tUseamman kuin kahden sormen teippaus",
+                ),
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ),
+        },
+    )
+
+    download_url = response.json()["download_url"]
+
+    document = Document(
+        BytesIO(
+            client.get(download_url).content,
+        )
+    )
+
+    paragraphs = [paragraph.text for paragraph in document.paragraphs]
+
+    assert paragraphs == [
+        "SW 27.8\tTejpning av fler än två fingrar eller tår",
+    ]

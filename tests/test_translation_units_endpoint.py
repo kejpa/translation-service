@@ -25,7 +25,6 @@ def test_search_translation_units(
         "Hur mår du?",
         "Hur mår du?",
     )
-    db.flush()
 
     response = client.get(
         "/translation-units?query=maailma",
@@ -61,7 +60,6 @@ def test_update_translation_unit(
         "Hej världen",
         "Hej världen",
     )
-    db.flush()
 
     response = client.put(
         "/translation-units/1",
@@ -88,7 +86,6 @@ def test_delete_translation_unit(
         "Hej världen",
         "Hej världen",
     )
-    db.flush()
 
     response = client.delete(
         "/translation-units/1",

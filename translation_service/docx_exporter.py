@@ -9,7 +9,11 @@ from translation_service.config import get_reference_threshold, get_reuse_thresh
 from translation_service.docx_parser import extract_all_paragraphs
 from translation_service.docx_status_indicators import apply_status_indicator
 from translation_service.fuzzy_search import find_fuzzy_matches
-from translation_service.normalization import normalize_text
+from translation_service.normalization import (
+    normalize_text,
+    extract_prefix,
+    rebuild_text,
+)
 from translation_service.ollama_service import OllamaError
 from translation_service.translation_candidates import (
     select_translation_candidate,
@@ -69,12 +73,18 @@ def translate_paragraphs(
         candidate = select_translation_candidate(matches)
 
         if candidate is not None:
+            prefix, _ = extract_prefix(
+                paragraph,
+            )
             translated_paragraphs.append(
                 ParagraphTranslation(
                     source_text=paragraph,
                     normalized_source_text=normalize_text(paragraph),
-                    target_text=candidate.target_text,
-                    normalized_target_text=normalize_text(candidate.target_text),
+                    target_text=rebuild_text(
+                        prefix,
+                        candidate.normalized_target_text,
+                    ),
+                    normalized_target_text=candidate.normalized_target_text,
                     status=TranslationStatus.TRANSLATED,
                 )
             )
@@ -89,11 +99,17 @@ def translate_paragraphs(
             best_match = fuzzy_matches[0]
 
             if best_match.score >= get_reuse_threshold():
+                prefix, _ = extract_prefix(
+                    paragraph,
+                )
                 translated_paragraphs.append(
                     ParagraphTranslation(
                         source_text=paragraph,
                         normalized_source_text=normalize_text(paragraph),
-                        target_text=best_match.translation_unit.target_text,
+                        target_text=rebuild_text(
+                            prefix,
+                            normalize_text(best_match.translation_unit.target_text),
+                        ),
                         normalized_target_text=normalize_text(
                             best_match.translation_unit.target_text
                         ),
@@ -104,11 +120,17 @@ def translate_paragraphs(
                 continue
 
             if best_match.score >= get_reference_threshold():
+                prefix, _ = extract_prefix(
+                    paragraph,
+                )
                 translated_paragraphs.append(
                     ParagraphTranslation(
                         source_text=paragraph,
                         normalized_source_text=normalize_text(paragraph),
-                        target_text=best_match.translation_unit.target_text,
+                        target_text=rebuild_text(
+                            prefix,
+                            normalize_text(best_match.translation_unit.target_text),
+                        ),
                         normalized_target_text=normalize_text(
                             best_match.translation_unit.target_text
                         ),
@@ -121,12 +143,18 @@ def translate_paragraphs(
             translation = translate_text(
                 paragraph,
             )
+            prefix, _ = extract_prefix(
+                paragraph,
+            )
 
             translated_paragraphs.append(
                 ParagraphTranslation(
                     source_text=paragraph,
                     normalized_source_text=normalize_text(paragraph),
-                    target_text=translation,
+                    target_text=rebuild_text(
+                        prefix,
+                        translation,
+                    ),
                     normalized_target_text=normalize_text(translation),
                     status=TranslationStatus.LLM,
                 )

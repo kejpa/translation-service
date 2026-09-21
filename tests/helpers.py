@@ -42,3 +42,6 @@ def add_translation(
             normalized_target_text=normalized_target_text,
         )
     )
+    db.flush()
+
+    db.commit()
