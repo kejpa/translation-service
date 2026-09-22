@@ -10,8 +10,8 @@ from translation_service.docx_parser import extract_all_paragraphs
 from translation_service.docx_status_indicators import apply_status_indicator
 from translation_service.fuzzy_search import find_fuzzy_matches
 from translation_service.normalization import (
-    normalize_text,
     extract_prefix,
+    normalize_text,
     rebuild_text,
 )
 from translation_service.ollama_service import OllamaError
