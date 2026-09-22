@@ -1,6 +1,6 @@
 from translation_service.normalization import (
-    normalize_text,
     extract_prefix,
+    normalize_text,
     rebuild_text,
 )
 
