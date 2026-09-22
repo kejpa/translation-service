@@ -2,8 +2,11 @@
 
 ## Overview
 
-Translation Service is a local-first Translation Memory application built with FastAPI, SQLite, and Ollama.
+Translation Service is a local-first Translation Memory application consisting of a Vue frontend, a FastAPI backend, a SQLite-based Translation Memory, and Ollama-powered AI translation.
 
+The frontend provides document import, document translation, Translation Memory administration and system monitoring capabilities through a browser-based user interface.
+
+The backend provides Translation Memory management, document processing, matching algorithms, document generation, and LLM integration.
 The system is designed to:
 
 1. Import Finnish and Swedish document pairs.
@@ -21,38 +24,71 @@ The architecture follows a layered design where API endpoints, business logic, p
 ## High-Level Architecture
 
 ```text
-+-------------+
-| DOCX Files  |
-+-------------+
-       |
-       v
++--------+
+| User   |
++--------+
+     |
+     v
++-------------------+
+| Vue Frontend      |
++-------------------+
+          |
+          v
 +-------------------+
 | FastAPI Endpoints |
 +-------------------+
-       |
-       v
+          |
+          v
 +-------------------+
 | Application Logic |
 +-------------------+
-       |
-       +----------------+
-       |                |
-       v                v
-+--------------+   +------------+
-| SQLite       |   | Ollama     |
-| Translation  |   | LLM        |
-| Memory       |   +------------+
+          |
+          +----------------+
+          |                |
+          v                v
++--------------+    +------------+
+| SQLite       |    | Ollama     |
+| Translation  |    | LLM        |
+| Memory       |    +------------+
 +--------------+
-       |
-       v
+          |
+          v
 +----------------+
 | Generated DOCX |
 +----------------+
 ```
+The Vue frontend is responsible for user interaction and workflow orchestration.
 
+FastAPI provides business logic, document processing, Translation Memory management, and AI integration.
+
+SQLite stores Translation Memory data while Ollama provides local AI-based translation when suitable Translation Memory matches cannot be found.
 
 
 ## Components
+
+###Frontend
+
+Frontend provides the primary user interface for the Translation Service.
+
+Responsibilities:
+- Dashboard and system monitoring
+- Translation Memory import
+- Document translation
+- Translation Memory administration
+- Translation statistics presentation
+- Download handling for generated documents
+- Error and status reporting
+- Communication with backend REST APIs
+
+Current pages:
+1. Dashboard
+2. Import Translation Memory
+3. Translate Document
+4. Translation Memory
+
+The frontend does not contain translation logic, Translation Memory matching logic, or document processing logic.
+
+All business logic is implemented in the backend and accessed through REST APIs.
 
 ### FastAPI
 
@@ -157,17 +193,74 @@ Translation units are linked to a document pair.
 DocumentPair:
 
 ```text
+id
 source_document
 target_document
+imported_at
 ```
 
 TranslationUnit:
 
 ```text
-source_text
-target_text
 document_pair_id
+source_text
+normalized_source_text
+target_text
+normalized_target_text
 ```
+
+Translation units store both the original texts and their normalized representations. Normalized texts are used for exact and fuzzy matching while original texts are preserved for traceability and maintenance.
+
+Datamodell:
+```text
+DocumentPair
+    |
+    +--- TranslationUnit 1
+    +--- TranslationUnit 2
+    +--- TranslationUnit N
+```
+
+### Rule-Aware Translation Memory
+
+- Translation Memory matching is performed using normalized text.
+- Original text is always preserved.
+- Normalized text is used only for matching operations.
+- Rule identifiers and numbering schemes are excluded from matching.
+- Exact match and fuzzy match both use normalized text.
+- Generated translations preserve the rule identifier from the source document.
+
+```text
+Source Text
+      |
+      v
+Normalize
+      |
+      v
+Exact Match
+      |
+      +---- No Match ----+
+      |                 |
+      v                 v
+Matched            Fuzzy Match
+Translation             |
+                        v
+                  Matched Translation
+                        |
+                        v
+                Reapply Source Prefix
+                        |
+                        v
+                 Translated Output
+```
+
+Benefits:
+- Improved Translation Memory reuse.
+- Reduced dependence on LLM translation.
+- Consistent handling of rule number changes between document versions.
+- Better exact match rates.
+- Better fuzzy match rates.
+- Preservation of source document numbering.
+
 
 ### Translation Memory Maintenance
 Translation units are imported from paired source and target documents.
@@ -211,8 +304,8 @@ The search layer provides Translation Memory lookup.
 
 Current capabilities:
 
-- Exact match lookup
-- Fuzzy match lookup
+- Exact match lookup using normalized text
+- Fuzzy match lookup using normalized text
 - Similarity scoring
 - Candidate ranking
 
@@ -220,7 +313,13 @@ Planned capabilities:
 
 - Context-aware ranking
 
-The search layer does not perform machine translation.
+Translation Memory lookups are performed against normalized source text rather than the original document text.
+
+This allows translations to be reused even when rule identifiers, section numbers, or other structural prefixes have changed between document versions.
+
+Exact match and fuzzy match both operate on normalized content while preserving the original source and target texts.
+
+The search layer is responsible for Translation Memory retrieval and candidate ranking. It does not perform machine translation.
 
 ### Translation Statistics
 
@@ -290,13 +389,22 @@ Exact Match
 
 ### Health Monitoring
 
-The health endpoint verifies:
+The health endpoint provides operational status information about the Translation Service.
 
-- Database connectivity
-- Docker runtime status
-- Ollama connectivity
-- Configured model availability
-- Fuzzy matching thresholds
+Current capabilities:
+
+- Database connectivity verification
+- Ollama connectivity verification
+- Configured model availability verification
+- Translation configuration reporting
+- Service dependency status reporting
+
+The health endpoint is primarily intended for diagnostics, monitoring, and troubleshooting.
+
+Unlike the dashboard endpoints, the health endpoint exposes detailed dependency and configuration information that may be useful during development and operations.
+The frontend dashboard does not rely directly on the health endpoint.
+
+Dashboard information is retrieved from dedicated endpoints while the health endpoint remains a diagnostic and monitoring interface.
 
 Endpoint:
 
@@ -314,13 +422,22 @@ docker-compose.dev.yaml
 
 Characteristics:
 
-- Hot reload enabled
-- Source code mounted as volume
+Characteristics:
+
+- Frontend hot reload enabled
+- Backend hot reload enabled
+- Source code mounted into containers
+- Vite development server exposed
+- FastAPI development server exposed
 - Ollama exposed on port 11434
-- Separate development container
+- Separate frontend, backend, and Ollama containers
+- No image rebuild required after normal code changes
 
 ```text
 Developer
+    |
+    v
+Vue Frontend
     |
     v
  FastAPI
@@ -329,7 +446,6 @@ Developer
     |            |
     v            v
  SQLite      Ollama
-    +------------+
     |
     v
 Generated
@@ -350,11 +466,18 @@ Characteristics:
 
 - No hot reload
 - Dedicated production image
+- Frontend assets built during release pipeline
+- Frontend and backend delivered as a single application
 - Ollama accessible only through the Docker network
 - Reduced attack surface
 
+In both development and production environments, users interact with the Vue frontend while all business logic remains implemented in the FastAPI backend.
+
 ```text
 Client
+   |
+   v
+Vue Frontend
    |
    v
  FastAPI
@@ -363,14 +486,37 @@ Client
     |            |
     v            v
  SQLite      Ollama
-    +------------+
     |
     v
 Generated
 DOCX
 ```
 
+### Release Workflow
+```text
+Developer
+    |
+    v
+Git Commit
+    |
+    v
+Git Tag
+    |
+    v
+GitHub Actions
+    |
+    v
+Container Build
+    |
+    v
+GHCR
+    |
+    v
+Production Deployment
+```
+Production releases are created from tagged commits. GitHub Actions builds the application, executes automated validation, publishes container images to GitHub Container Registry and prepares the images for deployment.
 
+The same architectural principles are used in both development and production environments. The primary differences are hot reload support, exposed development services and automated release packaging.
 
 ## Testing Strategy
 
@@ -488,19 +634,39 @@ Planned features include:
 - Translation review workflow
 
 
-## Technology Stack
+## Technology Stack and Tooling
 
 ```text
+Backend
+--------
 Python 3.13+
 FastAPI
 SQLAlchemy
 SQLite
 python-docx
 Ollama
+Uvicorn
+
+Frontend
+---------
+Vue 3
+Vue Router
+Pinia
+Vite
+
+Infrastructure
+--------------
 Docker
-Pytest
+GitHub Actions
+GitHub Container Registry (GHCR)
+
+Quality and Tooling
+-------------------
+pytest
 Pyright
 Ruff
+ESLint
+Oxlint
 pre-commit
 uv
 ```

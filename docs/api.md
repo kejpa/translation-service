@@ -54,7 +54,8 @@ Returns basic service information.
   "service": "translation-service",
   "version": "0.4.1",
   "status": "running",
-  "docker": "running"
+  "database": "connected",
+  "ollama": "connected"
 }
 ```
 
@@ -68,12 +69,11 @@ Returns service health status.
 {
   "status": "running",
   "database": "connected",
-  "docker": "running",
   "ollama": "connected",
   "model": "gemma3:4b",
   "model_available": true,
   "reuse_threshold": 85,
-  "reference_threshold": 30
+  "reference_threshold": 60
 }
 ```
 ### Notes
@@ -81,10 +81,9 @@ Returns service health status.
 The health endpoint verifies:
 
 - Database connectivity
-- Docker runtime
 - Ollama connectivity
 - Configured model availability
-- Active fuzzy matching thresholds
+- Active translation configuration
 
 ## POST /docx/parse
 
@@ -153,7 +152,7 @@ Multipart form upload:
 
 Returns all exact translation memory matches for a source segment.
 
-Matching is case-insensitive.
+Matching is case-insensitive and is performed using normalized text.
 
 ### Request
 
@@ -186,6 +185,9 @@ GET /translations/exact?source_text=Hei maailma
 }
 ```
 ## POST /docx/translate
+Before exact and fuzzy matching, source text is normalized.
+
+Rule identifiers are reapplied to translated text when Translation Memory matches are reused.
 
 Returns a translation job result containing:
 
@@ -371,7 +373,7 @@ Multipart form upload:
 
 Returns fuzzy Translation Memory matches for a source segment.
 
-Matching is case-insensitive.
+Matching is case-insensitive and is performed using normalized text.
 
 ### Request
 
@@ -477,6 +479,7 @@ Returns the current Ollama configuration.
 ```json
 {
   "model": "gemma3:4b",
+  "model_available": true,
   "temperature": 0,
   "reuse_threshold": 85,
   "reference_threshold": 30
@@ -500,3 +503,23 @@ Verifies communication with Ollama and returns generated text.
 | Status | Meaning |
 |---------|---------|
 500	|Failed to communicate with Ollama |
+
+## GET /translation-memory/statistics
+Returns translation memory statistics.
+### Response
+```json
+{
+  "database_type": "SQLite",
+  "database_name": "translationmemory.db",
+  "document_pairs": 37,
+  "translation_units": 8421
+}
+```
+
+## Dashboard endpoints
+```text
+GET /
+GET /llm/config
+GET /translation-memory/statistics
+```
+Used by the Vue frontend dashboard.
