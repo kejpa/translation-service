@@ -11,11 +11,14 @@ The goal of the project is to provide a self-hosted translation workflow for DOC
 Current features:
 
 - FastAPI REST API
+- Vue 3 frontend
 - SQLite database backend
 - DOCX document parsing
 - DOCX document pair import
 - DOCX document translation
 - DOCX document export
+- Dashboard
+- Rule-aware Translation Memory
 - Translation memory stored in SQLite
 - Exact match lookup
 - Case-insensitive matching
@@ -44,6 +47,48 @@ Planned features:
 
 - Translation review workflow
 - Configurable translation status colors
+
+## Frontend
+
+The system includes a Vue 3 frontend providing a browser-based user interface for:
+
+- Dashboard and system status monitoring
+- Translation Memory import
+- Document translation
+- Translation Memory administration
+
+The frontend communicates exclusively with the FastAPI backend through REST APIs.
+
+Frontend architecture is documented in:
+[docs/frontend.md]()
+
+## Rule-Aware Translation Memory
+
+Translation Memory matching uses normalized source and target texts.
+
+This improves reuse when rule identifiers change between document versions.
+
+Example:
+
+Original Translation Memory entry:
+
+SW 14.4 Useamman kuin kahden sormen teippaus
+
+↓
+
+SW 14.4 Tejpning av fler än två fingrar eller tår
+
+New source document:
+
+SW 27.8 Useamman kuin kahden sormen teippaus
+
+The system matches the normalized content and reuses the existing translation while preserving the current rule identifier.
+
+Result:
+
+SW 27.8 Tejpning av fler än två fingrar eller tår
+
+
 
 ## Workflow
 
@@ -249,7 +294,7 @@ REFERENCE_THRESHOLD=30
 - REUSE_THRESHOLD controls when a fuzzy match is automatically reused.
 - REFERENCE_THRESHOLD controls when a fuzzy match is classified as a low-confidence reference.
 
-## Versioning
+## Versioning and releases
 
 The VERSION file is the single source of truth for the application version.
 
@@ -273,17 +318,37 @@ EMPTY       -> No indicator
 ```
 
 ## Technology Stack
+
+### Backend
+
 - FastAPI
 - SQLAlchemy
 - SQLite
 - Ollama
 - python-docx
 - Uvicorn
+
+### Frontend
+
+- Vue 3
+- Vue Router
+- Pinia
+- Vite
+
+### Infrastructure
+
 - Docker
+- GitHub Actions
+- GitHub Container Registry (GHCR)
+
+### Development Tools
+
 - uv
 - pytest
 - Ruff
 - Pyright
+- ESLint
+- Oxlint
 
 ## License
 
@@ -293,3 +358,4 @@ MIT
 
 - Architecture: [docs/architecture.md]()
 - API documentation: [docs/api.md]()
+- Frontend documentation: [docs/frontend.md]()
