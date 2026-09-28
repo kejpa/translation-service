@@ -1,9 +1,11 @@
 from io import BytesIO
+from pathlib import Path
 from zipfile import ZipFile
 
 from docx import Document
 from fastapi.testclient import TestClient
 
+from tests.helpers import add_translation
 from translation_service.docx_exporter import (
     ParagraphTranslation,
     build_translated_document,
@@ -21,6 +23,21 @@ def create_docx() -> bytes:
     document.add_paragraph("Första stycket")
 
     stream = BytesIO()
+    document.save(stream)
+
+    return stream.getvalue()
+
+
+def create_docx_with_paragraphs(
+    *paragraphs: str,
+) -> bytes:
+    document = Document()
+
+    for paragraph in paragraphs:
+        document.add_paragraph(paragraph)
+
+    stream = BytesIO()
+
     document.save(stream)
 
     return stream.getvalue()
@@ -162,3 +179,160 @@ def test_build_translated_document_does_not_apply_indicator_for_translated():
     assert "00FF00" not in xml
     assert "FFFF00" not in xml
     assert "FF0000" not in xml
+
+
+def test_llm_translation_document(
+    db,
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        "translation_service.docx_exporter.translate_text",
+        lambda text: ("Tejpning av fler än två fingrar eller tår"),
+    )
+
+    source_docx = create_docx_with_paragraphs(
+        "SW 27.8\tUseamman kuin kahden sormen teippaus",
+    )
+
+    generated_dir = Path.cwd() / "generated"
+    generated_dir.mkdir(exist_ok=True)
+
+    source_path = generated_dir / "llm-source.docx"
+    translated_path = generated_dir / "llm-translated.docx"
+
+    source_path.write_bytes(source_docx)
+
+    response = client.post(
+        "/docx/translate",
+        files={
+            "file": (
+                "source.docx",
+                source_docx,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ),
+        },
+    )
+
+    download_url = response.json()["download_url"]
+
+    translated_docx = client.get(
+        download_url,
+    ).content
+
+    translated_path.write_bytes(
+        translated_docx,
+    )
+
+    document = Document(
+        BytesIO(translated_docx),
+    )
+
+    paragraphs = [paragraph.text for paragraph in document.paragraphs]
+
+    assert paragraphs == [
+        "SW 27.8\tTejpning av fler än två fingrar eller tår",
+    ]
+
+
+def test_exact_match_same_rule_number_document(
+    db,
+):
+    add_translation(
+        db,
+        "SW 14.4\tUseamman kuin kahden sormen teippaus",
+        "Useamman kuin kahden sormen teippaus",
+        "SW 14.4\tTejpning av fler än två fingrar eller tår",
+        "Tejpning av fler än två fingrar eller tår",
+    )
+
+    source_docx = create_docx_with_paragraphs(
+        "SW 14.4\tUseamman kuin kahden sormen teippaus",
+    )
+    generated_dir = Path.cwd() / "generated"
+    generated_dir.mkdir(exist_ok=True)
+
+    source_path = generated_dir / "exact-source.docx"
+    translated_path = generated_dir / "exact-translated.docx"
+
+    source_path.write_bytes(source_docx)
+
+    response = client.post(
+        "/docx/translate",
+        files={
+            "file": (
+                "source.docx",
+                source_docx,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ),
+        },
+    )
+
+    translated_docx = client.get(
+        response.json()["download_url"],
+    ).content
+
+    translated_path.write_bytes(
+        translated_docx,
+    )
+
+    document = Document(
+        BytesIO(translated_docx),
+    )
+
+    paragraphs = [p.text for p in document.paragraphs]
+
+    assert paragraphs == [
+        "SW 14.4\tTejpning av fler än två fingrar eller tår",
+    ]
+
+
+def test_exact_match_new_rule_number_document(
+    db,
+):
+    add_translation(
+        db,
+        "SW 14.4\tUseamman kuin kahden sormen teippaus",
+        "Useamman kuin kahden sormen teippaus",
+        "SW 14.4\tTejpning av fler än två fingrar eller tår",
+        "Tejpning av fler än två fingrar eller tår",
+    )
+
+    source_docx = create_docx_with_paragraphs(
+        "SW 27.8\tUseamman kuin kahden sormen teippaus",
+    )
+    generated_dir = Path.cwd() / "generated"
+    generated_dir.mkdir(exist_ok=True)
+
+    source_path = generated_dir / "new_number-source.docx"
+    translated_path = generated_dir / "new_number-translated.docx"
+
+    source_path.write_bytes(source_docx)
+
+    response = client.post(
+        "/docx/translate",
+        files={
+            "file": (
+                "source.docx",
+                source_docx,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ),
+        },
+    )
+
+    translated_docx = client.get(
+        response.json()["download_url"],
+    ).content
+
+    translated_path.write_bytes(
+        translated_docx,
+    )
+
+    document = Document(
+        BytesIO(translated_docx),
+    )
+
+    paragraphs = [p.text for p in document.paragraphs]
+
+    assert paragraphs == [
+        "SW 27.8\tTejpning av fler än två fingrar eller tår",
+    ]
