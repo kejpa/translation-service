@@ -18,6 +18,9 @@ NORMALIZATION_RULES = [
         r"^[a-z]\)\s+",
         re.IGNORECASE,
     ),
+    re.compile(
+        r"^❖\s+",
+    ),
 ]
 
 
