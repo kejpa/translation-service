@@ -110,6 +110,8 @@ app = FastAPI(
     title=PROJECT_NAME,
     description=PROJECT_DESCRIPTION,
     version=VERSION,
+    docs_url="/api/docs",
+    openapi_url="/api/openapi.json",
     lifespan=lifespan,
 )
 
