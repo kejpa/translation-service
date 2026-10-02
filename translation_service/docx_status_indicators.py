@@ -51,7 +51,7 @@ def get_text_color(
             return None
 
         case TranslationStatus.LLM:
-            return None
+            return RED
 
         case TranslationStatus.MISSING:
             return RED

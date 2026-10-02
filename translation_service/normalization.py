@@ -5,6 +5,22 @@ NORMALIZATION_RULES = [
         r"^SW\s+\d+(?:\.\d+)*\s+",
         re.IGNORECASE,
     ),
+    re.compile(
+        r"^\d+(?:\.\d+)*\.?\s+",
+    ),
+    re.compile(
+        r"^-\s+",
+    ),
+    re.compile(
+        r"^•\s+",
+    ),
+    re.compile(
+        r"^[a-z]\)\s+",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"^❖\s+",
+    ),
 ]
 
 

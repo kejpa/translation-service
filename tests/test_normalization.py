@@ -12,6 +12,22 @@ def test_normalize_sw_rule_number():
     assert normalize_text(text) == ("Ei pysynyt koko matkaa omalla radallaan")
 
 
+def test_normalize_rules():
+    assert normalize_text("1 Test") == "Test"
+
+    assert normalize_text("1. Test") == "Test"
+
+    assert normalize_text("1.1 Test") == "Test"
+
+    assert normalize_text("1.1.1 Test") == "Test"
+
+    assert normalize_text("- Test") == "Test"
+
+    assert normalize_text("• Test") == "Test"
+
+    assert normalize_text("a) Test") == "Test"
+
+
 def test_normalize_plain_text():
     text = "Tämä koskee kaikkia opiskelijoita."
 
