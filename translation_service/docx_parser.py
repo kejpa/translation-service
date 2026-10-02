@@ -2,6 +2,7 @@ from pathlib import Path
 
 from docx import Document
 from docx.oxml.ns import qn
+from docx.text.paragraph import Paragraph
 
 
 def extract_paragraphs(file_path: Path) -> list[str]:
@@ -9,9 +10,11 @@ def extract_paragraphs(file_path: Path) -> list[str]:
     Extract non-empty paragraphs from a DOCX file
     while preserving the document"""
     document = Document(str(file_path))
+
+    renderer = NumberingRenderer()
     paragraphs = []
 
-    for paragraph in document.paragraphs:
+    for paragraph in iter_paragraphs(document):
         text = paragraph.text.strip()
 
         if not text:
@@ -20,6 +23,7 @@ def extract_paragraphs(file_path: Path) -> list[str]:
         prefix = get_visible_prefix(
             paragraph,
             document,
+            renderer,
         )
 
         if prefix:
@@ -41,8 +45,9 @@ def extract_all_paragraphs(
 def get_visible_prefix(
     paragraph,
     document,
+    renderer,
 ) -> str | None:
-    _, _, lvl_text = get_visible_prefix_info(
+    num_id, ilvl, lvl_text = get_visible_prefix_info(
         paragraph,
         document,
     )
@@ -50,27 +55,16 @@ def get_visible_prefix(
     if lvl_text is None:
         return None
 
-    if "%" in lvl_text:
-        return None
+    # Regelnumrering
+    if "%" in lvl_text and num_id is not None and ilvl is not None:
+        return renderer.render(
+            num_id,
+            int(ilvl),
+            lvl_text,
+        )
 
+    # Punktlistor
     return lvl_text
-
-
-def get_paragraph_metadata(
-    paragraph,
-    document,
-) -> dict[str, str | None]:
-    num_id, ilvl, lvl_text = get_visible_prefix_info(
-        paragraph,
-        document,
-    )
-
-    return {
-        "text": paragraph.text.strip(),
-        "num_id": num_id,
-        "ilvl": ilvl,
-        "lvl_text": lvl_text,
-    }
 
 
 def get_visible_prefix_info(
@@ -147,3 +141,59 @@ def get_visible_prefix_info(
             )
 
     return num_id, ilvl, None
+
+
+class NumberingRenderer:
+    def __init__(self) -> None:
+        self._counters: dict[str, dict[int, int]] = {}
+
+    def render(
+        self,
+        num_id: str,
+        ilvl: int,
+        lvl_text: str,
+    ) -> str:
+        counters = self._counters.setdefault(
+            num_id,
+            {},
+        )
+
+        counters[ilvl] = counters.get(ilvl, 0) + 1
+
+        for level in list(counters.keys()):
+            if level > ilvl:
+                del counters[level]
+
+        result = lvl_text
+
+        for level in range(ilvl + 1):
+            placeholder = f"%{level + 1}"
+
+            if placeholder in result:
+                result = result.replace(placeholder, str(counters.get(level, 0)))
+
+        return result
+
+
+def iter_paragraphs(document):
+    body = document.element.body
+
+    for child in body:
+        tag = child.tag.split("}")[-1]
+
+        if tag == "p":
+            yield Paragraph(child, document)
+
+        elif tag == "sdt":
+            sdt_content = child.find(
+                ".//{http://schemas.openxmlformats.org/wordprocessingml/2006/main}sdtContent"
+            )
+
+            if sdt_content is None:
+                continue
+
+            for nested in sdt_content:
+                nested_tag = nested.tag.split("}")[-1]
+
+                if nested_tag == "p":
+                    yield Paragraph(nested, document)

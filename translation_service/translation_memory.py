@@ -13,8 +13,6 @@ def find_exact_matches(
         source_text,
     )
 
-    print(f"Searching for: '{normalized_source_text}'")
-
     normalized_source_text = normalize_text(
         source_text,
     )
@@ -30,5 +28,4 @@ def find_exact_matches(
         .order_by(TranslationUnit.id)
         .all()
     )
-    print(f"Matches: {len(results)}")
     return results
