@@ -15,7 +15,7 @@ def test_llm_test_endpoint_returns_response(
     )
 
     response = client.post(
-        "/llm/test",
+        "/api/llm/test",
         json={
             "prompt": "Say hello",
         },
@@ -42,7 +42,7 @@ def test_llm_test_endpoint_returns_500_on_ollama_error(
     )
 
     response = client.post(
-        "/llm/test",
+        "/api/llm/test",
         json={
             "prompt": "Say hello",
         },

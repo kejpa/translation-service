@@ -46,7 +46,7 @@ def test_fuzzy_match_endpoint_returns_matches_sorted_by_score(
     db.commit()
 
     response = client.get(
-        "/translations/fuzzy",
+        "/api/translations/fuzzy",
         params={
             "source_text": "Hei maailma",
         },
@@ -70,7 +70,7 @@ def test_fuzzy_match_endpoint_returns_empty_list_when_no_matches(
     db,
 ):
     response = client.get(
-        "/translations/fuzzy",
+        "/api/translations/fuzzy",
         params={
             "source_text": "Hei maailma",
         },

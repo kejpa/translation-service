@@ -197,7 +197,7 @@ Example:
 
 ```json
 {
-  "download_url": "/downloads/translated.docx",
+  "download_url": "/api/downloads/translated.docx",
   "statistics": {
     "total_paragraphs": 120,
     "translated": 70,

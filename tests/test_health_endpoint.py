@@ -18,7 +18,7 @@ def test_health_endpoint(
         lambda: True,
     )
 
-    response = client.get("/health")
+    response = client.get("/api/health")
 
     assert response.status_code == 200
 

@@ -21,7 +21,7 @@ def test_download_returns_docx(
     )
 
     translate_response = client.post(
-        "/docx/translate",
+        "/api/docx/translate",
         files={
             "file": (
                 "source.docx",
@@ -61,7 +61,7 @@ def test_download_returns_translated_content(
     )
 
     translate_response = client.post(
-        "/docx/translate",
+        "/api/docx/translate",
         files={
             "file": (
                 "source.docx",
@@ -110,7 +110,7 @@ def test_download_preserves_empty_paragraphs(
     )
 
     translate_response = client.post(
-        "/docx/translate",
+        "/api/docx/translate",
         files={
             "file": (
                 "source.docx",
@@ -153,7 +153,7 @@ def test_translate_docx_uses_requested_filename(
     )
 
     response = client.post(
-        "/docx/translate",
+        "/api/docx/translate",
         data={
             "output_filename": "my-translation.docx",
         },
@@ -168,7 +168,7 @@ def test_translate_docx_uses_requested_filename(
 
     assert response.status_code == 200
 
-    assert response.json()["download_url"] == ("/downloads/my-translation.docx")
+    assert response.json()["download_url"] == ("/api/downloads/my-translation.docx")
 
 
 def test_translate_docx_uses_default_filename(
@@ -183,7 +183,7 @@ def test_translate_docx_uses_default_filename(
     )
 
     response = client.post(
-        "/docx/translate",
+        "/api/docx/translate",
         files={
             "file": (
                 "source.docx",
@@ -195,4 +195,4 @@ def test_translate_docx_uses_default_filename(
 
     assert response.status_code == 200
 
-    assert response.json()["download_url"] == ("/downloads/translated.docx")
+    assert response.json()["download_url"] == ("/api/downloads/translated.docx")

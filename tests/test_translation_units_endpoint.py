@@ -27,7 +27,7 @@ def test_search_translation_units(
     )
 
     response = client.get(
-        "/translation-units?query=maailma",
+        "/api/translation-units?query=maailma",
     )
 
     assert response.status_code == 200
@@ -43,7 +43,7 @@ def test_search_translation_units(
 
 def test_search_translation_units_returns_empty_result():
     response = client.get(
-        "/translation-units?query=foo",
+        "/api/translation-units?query=foo",
     )
 
     assert response.status_code == 200
@@ -62,7 +62,7 @@ def test_update_translation_unit(
     )
 
     response = client.put(
-        "/translation-units/1",
+        "/api/translation-units/1",
         json={
             "source_text": "Hei maailma",
             "target_text": "Hej världen!!!",
@@ -88,7 +88,7 @@ def test_delete_translation_unit(
     )
 
     response = client.delete(
-        "/translation-units/1",
+        "/api/translation-units/1",
     )
 
     assert response.status_code == 204

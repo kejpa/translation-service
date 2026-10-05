@@ -37,6 +37,7 @@ from translation_service.ollama_service import (
 )
 from translation_service.translation_memory import find_exact_matches
 from translation_service.translation_statistics import calculate_translation_statistics
+from fastapi.staticfiles import StaticFiles
 
 VERSION = Path("VERSION").read_text(encoding="utf-8").strip()
 print("MAIN.PY LOADED")
@@ -123,8 +124,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+assets_directory = Path("static/assets")
+
+if assets_directory.exists():
+    app.mount(
+        "/assets",
+        StaticFiles(directory=assets_directory),
+        name="assets",
+    )
+
 
 @app.get("/")
+def frontend():
+    return FileResponse("static/index.html")
+
+
+@app.get("/api/")
 def root(
     db: Session = Depends(get_db),
 ):
@@ -137,7 +152,7 @@ def root(
     }
 
 
-@app.get("/health")
+@app.get("/api/health")
 def health(
     db: Session = Depends(get_db),
 ):
@@ -152,7 +167,7 @@ def health(
     }
 
 
-@app.get("/translation-units")
+@app.get("/api/translation-units")
 def get_translation_units(
     query: str | None = None,
     db: Session = Depends(get_db),
@@ -183,7 +198,7 @@ def get_translation_units(
     ]
 
 
-@app.post("/document-pairs/import")
+@app.post("/api/document-pairs/import")
 async def import_document_pair_endpoint(
     source_file: UploadFile = File(...),
     target_file: UploadFile = File(...),
@@ -247,7 +262,7 @@ async def import_document_pair_endpoint(
         Path(target_path).unlink(missing_ok=True)
 
 
-@app.post("/docx/parse")
+@app.post("/api/docx/parse")
 async def parse_docx(
     file: UploadFile = File(...),
 ):
@@ -288,7 +303,7 @@ async def parse_docx(
         Path(temp_path).unlink(missing_ok=True)
 
 
-@app.post("/docx/translate")
+@app.post("/api/docx/translate")
 async def translate_docx(
     file: UploadFile = File(...),
     output_filename: str = Form("translated.docx"),
@@ -344,7 +359,7 @@ async def translate_docx(
         )
 
         return {
-            "download_url": f"/downloads/{output_filename}",
+            "download_url": f"/api/downloads/{output_filename}",
             "statistics": asdict(statistics),
         }
     except PackageNotFoundError:
@@ -357,7 +372,7 @@ async def translate_docx(
         temp_path.unlink(missing_ok=True)
 
 
-@app.get("/translations/exact")
+@app.get("/api/translations/exact")
 def get_exact_matches(
     source_text: str,
     db: Session = Depends(get_db),
@@ -373,7 +388,7 @@ def get_exact_matches(
     }
 
 
-@app.post("/docx/statistics")
+@app.post("/api/docx/statistics")
 async def translation_statistics(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
@@ -423,7 +438,7 @@ async def translation_statistics(
         temp_path.unlink(missing_ok=True)
 
 
-@app.get("/translations/fuzzy")
+@app.get("/api/translations/fuzzy")
 def fuzzy_matches(
     source_text: str,
     db: Session = Depends(get_db),
@@ -448,7 +463,7 @@ def fuzzy_matches(
     }
 
 
-@app.post("/llm/test")
+@app.post("/api/llm/test")
 def llm_test(
     request: LlmTestRequest,
 ):
@@ -466,7 +481,7 @@ def llm_test(
         ) from error
 
 
-@app.get("/llm/config")
+@app.get("/api/llm/config")
 def llm_config():
     return {
         "model": get_ollama_model(),
@@ -477,7 +492,7 @@ def llm_config():
     }
 
 
-@app.get("/downloads/{filename}")
+@app.get("/api/downloads/{filename}")
 def download_file(
     filename: str,
 ):
@@ -498,7 +513,7 @@ def download_file(
     )
 
 
-@app.put("/translation-units/{translation_unit_id}")
+@app.put("/api/translation-units/{translation_unit_id}")
 def update_translation_unit(
     translation_unit_id: int,
     request: UpdateTranslationUnitRequest,
@@ -528,7 +543,7 @@ def update_translation_unit(
 
 
 @app.delete(
-    "/translation-units/{translation_unit_id}",
+    "/api/translation-units/{translation_unit_id}",
     status_code=204,
 )
 def delete_translation_unit(
@@ -551,7 +566,7 @@ def delete_translation_unit(
     db.commit()
 
 
-@app.get("/translation-memory/statistics")
+@app.get("/api/translation-memory/statistics")
 def translation_memory_statistics(
     db: Session = Depends(get_db),
 ):

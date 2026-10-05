@@ -10,7 +10,7 @@ def test_translate_docx_rejects_non_docx_file(
     db,
 ):
     response = client.post(
-        "/docx/translate",
+        "/api/docx/translate",
         files={
             "file": (
                 "source.txt",
@@ -31,7 +31,7 @@ def test_translate_docx_rejects_invalid_docx(
     db,
 ):
     response = client.post(
-        "/docx/translate",
+        "/api/docx/translate",
         files={
             "file": (
                 "source.docx",
@@ -60,7 +60,7 @@ def test_translate_docx_returns_translation_job_result(
     )
 
     response = client.post(
-        "/docx/translate",
+        "/api/docx/translate",
         files={
             "file": (
                 "source.docx",
@@ -74,7 +74,7 @@ def test_translate_docx_returns_translation_job_result(
 
     body = response.json()
 
-    assert body["download_url"] == "/downloads/translated.docx"
+    assert body["download_url"] == "/api/downloads/translated.docx"
     assert body["statistics"] == {
         "total_paragraphs": 1,
         "translated": 1,

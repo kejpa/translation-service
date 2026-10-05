@@ -6,7 +6,7 @@ client = TestClient(app)
 
 
 def test_translation_units_endpoint():
-    response = client.get("/translation-units")
+    response = client.get("/api/translation-units")
 
     assert response.status_code == 200
     assert isinstance(response.json(), list)

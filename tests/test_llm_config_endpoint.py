@@ -22,7 +22,7 @@ def test_llm_config_endpoint_returns_defaults(
         lambda: True,
     )
     response = client.get(
-        "/llm/config",
+        "/api/llm/config",
     )
 
     assert response.status_code == 200
@@ -64,7 +64,7 @@ def test_llm_config_endpoint_returns_environment_values(
     )
 
     response = client.get(
-        "/llm/config",
+        "/api/llm/config",
     )
 
     assert response.status_code == 200

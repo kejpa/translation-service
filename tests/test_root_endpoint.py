@@ -18,7 +18,7 @@ def test_root_endpoint(
         lambda db: True,
     )
 
-    response = client.get("/")
+    response = client.get("/api/")
 
     assert response.status_code == 200
 
@@ -43,7 +43,7 @@ def test_root_endpoint_reports_disconnected_services(
         lambda db: False,
     )
 
-    response = client.get("/")
+    response = client.get("/api/")
 
     assert response.status_code == 200
 

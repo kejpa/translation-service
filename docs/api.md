@@ -206,7 +206,7 @@ Multipart form upload:
 ### Success Response
 ```json
 {
-  "download_url": "/downloads/translated.docx",
+  "download_url": "/api/downloads/translated.docx",
   "statistics": {
     "total_paragraphs": 20,
     "translated": 10,

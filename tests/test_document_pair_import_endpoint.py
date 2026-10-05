@@ -33,7 +33,7 @@ def test_import_document_pair(db):
     )
 
     response = client.post(
-        "/document-pairs/import",
+        "/api/document-pairs/import",
         files={
             "source_file": (
                 "source.docx",
@@ -78,7 +78,7 @@ def test_import_rejects_non_docx_source():
     )
 
     response = client.post(
-        "/document-pairs/import",
+        "/api/document-pairs/import",
         files={
             "source_file": (
                 "source.txt",
@@ -104,7 +104,7 @@ def test_import_rejects_non_docx_target():
     )
 
     response = client.post(
-        "/document-pairs/import",
+        "/api/document-pairs/import",
         files={
             "source_file": (
                 "source.docx",
@@ -130,7 +130,7 @@ def test_import_rejects_corrupt_source_docx():
     )
 
     response = client.post(
-        "/document-pairs/import",
+        "/api/document-pairs/import",
         files={
             "source_file": (
                 "source.docx",
@@ -154,7 +154,7 @@ def test_import_rejects_corrupt_target_docx():
     )
 
     response = client.post(
-        "/document-pairs/import",
+        "/api/document-pairs/import",
         files={
             "source_file": (
                 "source.docx",
@@ -183,7 +183,7 @@ def test_import_rejects_different_number_of_segments():
     )
 
     response = client.post(
-        "/document-pairs/import",
+        "/api/document-pairs/import",
         files={
             "source_file": (
                 "source.docx",
