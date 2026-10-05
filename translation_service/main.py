@@ -599,3 +599,8 @@ def translation_memory_statistics(
             status_code=503,
             detail="Database unavailable",
         ) from error
+
+
+@app.get("/{path:path}")
+def spa_fallback(path: str):
+    return FileResponse("static/index.html")
