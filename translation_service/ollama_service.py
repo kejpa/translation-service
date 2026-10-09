@@ -1,4 +1,7 @@
+from dataclasses import dataclass
+
 import ollama
+from pydantic import BaseModel
 
 from translation_service.config import (
     get_ollama_base_url,
@@ -9,6 +12,19 @@ from translation_service.config import (
 
 class OllamaError(Exception):
     pass
+
+
+class InstallModelRequest(
+    BaseModel,
+):
+    model: str | None = None
+
+
+@dataclass
+class InstallModelResult:
+    success: bool
+    model: str
+    message: str
 
 
 def generate_text(
@@ -71,3 +87,31 @@ def model_exists(
 
     except ConnectionError:
         return False
+
+
+def install_model(
+    model_name: str,
+    client=None,
+) -> InstallModelResult:
+    if client is None:
+        client = ollama.Client(
+            host=get_ollama_base_url(),
+        )
+
+    try:
+        client.pull(
+            model_name,
+        )
+
+        return InstallModelResult(
+            success=True,
+            model=model_name,
+            message="Model installed successfully",
+        )
+
+    except Exception as error:
+        return InstallModelResult(
+            success=False,
+            model=model_name,
+            message=str(error),
+        )

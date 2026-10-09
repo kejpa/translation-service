@@ -11,6 +11,13 @@ export default defineConfig({
     vueDevTools(),
   ],
   server: {
+    proxy: {
+      "/api": {
+        target: "http://translation-service-dev:8000",
+        changeOrigin: true,
+      },
+    },
+
     host: '0.0.0.0',
     watch: {
       usePolling: true,

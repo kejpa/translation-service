@@ -34,6 +34,8 @@ from translation_service.ollama_service import (
     check_connection,
     generate_text,
     model_exists,
+    install_model,
+    InstallModelRequest,
 )
 from translation_service.translation_memory import find_exact_matches
 from translation_service.translation_statistics import calculate_translation_statistics
@@ -134,11 +136,12 @@ if assets_directory.exists():
     )
 
 
-@app.get("/")
+@app.get("")
 def frontend():
     return FileResponse("static/index.html")
 
 
+@app.get("/api")
 @app.get("/api/")
 def root(
     db: Session = Depends(get_db),
@@ -601,6 +604,27 @@ def translation_memory_statistics(
         ) from error
 
 
-@app.get("/{path:path}")
-def spa_fallback(path: str):
-    return FileResponse("static/index.html")
+@app.post("/api/llm/install-model")
+def install_model_endpoint(
+    request: InstallModelRequest,
+):
+    model_name = request.model if request.model else get_ollama_model()
+
+    result = install_model(
+        model_name,
+    )
+
+    return {
+        "success": result.success,
+        "model": result.model,
+        "message": result.message,
+    }
+
+
+frontend_file = Path("static/index.html")
+
+if frontend_file.exists():
+
+    @app.get("/{path:path}")
+    def spa_fallback(path: str):
+        return FileResponse(frontend_file)
