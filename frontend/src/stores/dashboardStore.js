@@ -23,7 +23,7 @@ const configurationLabelMap = {
 }
 const configurationValueMap = {
   model_available: value =>
-    value ? 'Installed' : 'Not Installed',
+    value ? '✅ Installed' : '❌ Not Installed',
 }
 const translationMemoryLabelMap = {
   database_type: 'Database engine',
@@ -37,6 +37,7 @@ export const useDashboardStore = defineStore(
   () => {
     const health = ref(null)
     const configuration = ref(null)
+    const configurationData = ref(null)
     const translationMemory = ref(null)
 
     const loading = ref(false)
@@ -47,7 +48,8 @@ export const useDashboardStore = defineStore(
 
       try {
         health.value = objectToRows(await await getServiceStatus(), healthLabelMap,)
-        configuration.value = objectToRows(await await getTranslationConfiguration(), configurationLabelMap,configurationValueMap)
+        configurationData.value = await getTranslationConfiguration()
+        configuration.value = objectToRows(configurationData.value, configurationLabelMap,configurationValueMap)
         translationMemory.value = objectToRows(await getTranslationMemoryStatistics(), translationMemoryLabelMap)
       } catch (err) {
         error.value = err
@@ -59,6 +61,7 @@ export const useDashboardStore = defineStore(
     return {
       health,
       configuration,
+      configurationData,
       translationMemory,
 
       loading,

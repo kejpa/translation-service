@@ -113,6 +113,11 @@ def test_model_exists_returns_true(
         lambda host: FakeClient(),
     )
 
+    monkeypatch.setattr(
+        "translation_service.ollama_service.get_ollama_model",
+        lambda: "gemma3:4b",
+    )
+
     assert model_exists() is True
 
 

@@ -1,11 +1,19 @@
 <script setup>
 import DashboardCard from '@/components/DashboardCard.vue'
+import ModelCard from '@/components/ModelCard.vue'
 import {useDashboardStore} from "@/stores/dashboardStore.js";
 import {storeToRefs} from "pinia";
-import {onMounted} from "vue";
+import {computed, onMounted} from "vue";
 
 const dashboardStore = useDashboardStore()
-const {loading, health, configuration, translationMemory} = storeToRefs(dashboardStore)
+const {loading, health, configuration, configurationData, translationMemory} = storeToRefs(dashboardStore)
+const modelAvailable = computed(
+  () => configurationData.value?.model_available,
+)
+
+const configuredModel = computed(
+  () => configurationData.value?.model,
+)
 
 onMounted(() => {
   dashboardStore.getDashboard()
@@ -17,7 +25,8 @@ onMounted(() => {
   <div class="dashboard">
     <DashboardCard :data="health" title="Service Status"/>
 
-    <DashboardCard :data="configuration" title="Translation Configuration"/>
+    <DashboardCard v-if="modelAvailable" :data="configuration" title="Ollama Configuration"/>
+    <ModelCard v-else :model="configuredModel" @installed="dashboardStore.getDashboard()"/>
 
     <DashboardCard :data="translationMemory" title="Translation Memory"/>
   </div>

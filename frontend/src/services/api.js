@@ -54,9 +54,7 @@ export async function put(
   return await response.json()
 }
 
-export async function remove(
-  path,
-) {
+export async function remove(path,) {
   const response = await fetch(
     `${API_BASE_URL}${path}`,
     {
@@ -81,4 +79,32 @@ export async function remove(
 
     throw new Error(message)
   }
+}
+
+export async function post(path, body,) {
+  const response = await fetch(
+    `${API_BASE_URL}${path}`,
+    {
+      method: 'POST',
+
+      headers: {
+        'Content-Type':
+          'application/json',
+      },
+
+      body: JSON.stringify(body),
+    },
+  )
+
+  if (!response.ok) {
+    const data =
+      await response.json()
+
+    throw new Error(
+      data.detail ??
+      `API request failed: ${response.status}`,
+    )
+  }
+
+  return await response.json()
 }

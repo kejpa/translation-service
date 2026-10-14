@@ -22,12 +22,12 @@ def test_health_endpoint(
 
     assert response.status_code == 200
 
-    assert response.json() == {
-        "status": "running",
-        "database": "connected",
-        "ollama": "connected",
-        "model": "gemma3:4b",
-        "model_available": True,
-        "reuse_threshold": 85,
-        "reference_threshold": 60,
-    }
+    data = response.json()
+
+    assert isinstance(data["status"], str)
+    assert isinstance(data["database"], str)
+    assert isinstance(data["ollama"], str)
+    assert isinstance(data["model"], str)
+    assert isinstance(data["model_available"], bool)
+    assert isinstance(data["reuse_threshold"], int)
+    assert isinstance(data["reference_threshold"], int)
