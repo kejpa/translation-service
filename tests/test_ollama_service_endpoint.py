@@ -1,10 +1,9 @@
+from unittest.mock import patch
+
 from starlette.testclient import TestClient
 
 from translation_service.main import app
-from translation_service.ollama_service import OllamaError
-from unittest.mock import patch
-
-from translation_service.ollama_service import InstallModelResult
+from translation_service.ollama_service import InstallModelResult, OllamaError
 
 client = TestClient(app)
 

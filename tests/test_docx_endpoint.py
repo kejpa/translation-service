@@ -187,7 +187,7 @@ def test_llm_translation_document(
 ):
     monkeypatch.setattr(
         "translation_service.docx_exporter.translate_text",
-        lambda text: ("Tejpning av fler än två fingrar eller tår"),
+        lambda text: "Tejpning av fler än två fingrar eller tår",
     )
 
     source_docx = create_docx_with_paragraphs(
