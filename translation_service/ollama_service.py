@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 import ollama
+from ollama import ResponseError
 from pydantic import BaseModel
 
 from translation_service.config import (
@@ -109,7 +110,7 @@ def install_model(
             message="Model installed successfully",
         )
 
-    except Exception as error:
+    except ResponseError as error:
         return InstallModelResult(
             success=False,
             model=model_name,

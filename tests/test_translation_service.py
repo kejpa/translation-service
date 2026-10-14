@@ -167,7 +167,7 @@ def test_llm_translation_uses_new_rule_number(
 ):
     monkeypatch.setattr(
         "translation_service.docx_exporter.translate_text",
-        lambda text: ("Tejpning av fler än två fingrar eller tår"),
+        lambda text: "Tejpning av fler än två fingrar eller tår",
     )
 
     result = translate_paragraphs(

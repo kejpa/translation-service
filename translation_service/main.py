@@ -9,6 +9,7 @@ from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import (
     CORSMiddleware,
 )
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy import func, text
 from sqlalchemy.exc import SQLAlchemyError
@@ -30,16 +31,15 @@ from translation_service.docx_parser import extract_all_paragraphs, extract_para
 from translation_service.fuzzy_search import find_fuzzy_matches
 from translation_service.models import DocumentPair, TranslationUnit
 from translation_service.ollama_service import (
+    InstallModelRequest,
     OllamaError,
     check_connection,
     generate_text,
-    model_exists,
     install_model,
-    InstallModelRequest,
+    model_exists,
 )
 from translation_service.translation_memory import find_exact_matches
 from translation_service.translation_statistics import calculate_translation_statistics
-from fastapi.staticfiles import StaticFiles
 
 VERSION = Path("VERSION").read_text(encoding="utf-8").strip()
 print("MAIN.PY LOADED")
