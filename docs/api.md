@@ -27,7 +27,7 @@ http://localhost:8000
 Swagger UI:
 
 ```text
-http://localhost:8000/docs
+http://localhost:8000/api/docs
 ```
 ## Generated Files
 
@@ -35,7 +35,7 @@ Translated documents are stored in the generated directory.
 
 Documents can later be downloaded through:
 
-GET /downloads/{filename}
+GET /api/downloads/{filename}
 
 Custom filenames are supported through the output_filename parameter.
 
@@ -43,7 +43,7 @@ Custom filenames are supported through the output_filename parameter.
 
 - Architecture: [architecture.md]()
 
-## GET /
+## GET /api
 
 Returns basic service information.
 
@@ -59,7 +59,7 @@ Returns basic service information.
 }
 ```
 
-## GET /health
+## GET /api/health
 
 Returns service health status.
 
@@ -85,7 +85,7 @@ The health endpoint verifies:
 - Configured model availability
 - Active translation configuration
 
-## POST /docx/parse
+## POST /api/docx/parse
 
 Extracts text segments from a DOCX document.
 
@@ -117,7 +117,7 @@ Multipart form upload:
 | 422 | Invalid DOCX file |
 | 500 | Internal parsing error |
 
-## POST /document-pairs/import
+## POST /api/document-pairs/import
 
 Imports a source and target DOCX document pair into the translation memory.
 
@@ -148,7 +148,7 @@ Multipart form upload:
 | 422 | Invalid DOCX file |
 | 422 | Different segment counts |
 
-## GET /translations/exact
+## GET /api/translations/exact
 
 Returns all exact translation memory matches for a source segment.
 
@@ -157,7 +157,7 @@ Matching is case-insensitive and is performed using normalized text.
 ### Request
 
 ```text
-GET /translations/exact?source_text=Hei maailma
+GET /api/translations/exact?source_text=Hei maailma
 ```
 
 ### Response
@@ -184,7 +184,7 @@ GET /translations/exact?source_text=Hei maailma
   "matches": []
 }
 ```
-## POST /docx/translate
+## POST /api/docx/translate
 Before exact and fuzzy matching, source text is normalized.
 
 Rule identifiers are reapplied to translated text when Translation Memory matches are reused.
@@ -253,14 +253,14 @@ EMPTY       -> No indicator
 | 422 | Invalid DOCX file |
 | 500 | Failed to translate document |
 
-## GET /downloads/{filename}
+## GET /api/downloads/{filename}
 
 Downloads a previously generated DOCX file.
 
 ### Request
 
 ```text
-GET /downloads/translated.docx
+GET /api/downloads/translated.docx
 ```
 ### Response
 Returns:
@@ -271,13 +271,13 @@ application/vnd.openxmlformats-officedocument.wordprocessingml.document
 |---------|---------|
 | 404 | File not found |
 
-## GET /translation-units
+## GET /api/translation-units
 ### Request
-GET /translation-units
+GET /api/translation-units
 
 Optional search:
 
-GET /translation-units?query=maailma
+GET /api/translation-units?query=maailma
 ### Response
 ```json
 [
@@ -289,7 +289,7 @@ GET /translation-units?query=maailma
 ]
 ```
 
-## PUT /translation-units/{id}
+## PUT /api/translation-units/{id}
 Updates an existing translation unit.
 
 ### Request
@@ -314,7 +314,7 @@ Updates an existing translation unit.
 |---------|---------|
 | 404 | Translation unit not found |
 
-## DELETE /translation-units/{id}
+## DELETE /api/translation-units/{id}
 Deletes a translation unit.
 
 ### Response
@@ -328,7 +328,7 @@ Deletes a translation unit.
 | 404 | Translation unit not found |
 
 
-## POST /docx/statistics
+## POST /api/docx/statistics
 
 Calculates translation statistics for a DOCX document.
 
@@ -369,7 +369,7 @@ Multipart form upload:
 | 422 | Invalid DOCX file |
 | 500 | Failed to calculate statistics |
 
-## GET /translations/fuzzy
+## GET /api/translations/fuzzy
 
 Returns fuzzy Translation Memory matches for a source segment.
 
@@ -378,7 +378,7 @@ Matching is case-insensitive and is performed using normalized text.
 ### Request
 
 ```text
-GET /translations/fuzzy?source_text=Hei maailma
+GET /api/translations/fuzzy?source_text=Hei maailma
 ```
 
 ### Response
@@ -470,7 +470,7 @@ A paragraph is marked as MISSING only if:
 
 MISSING paragraphs are exported with visual indicators to help identify failed translations.
 
-## GET /llm/config
+## GET /api/llm/config
 
 Returns the current Ollama configuration.
 
@@ -485,7 +485,13 @@ Returns the current Ollama configuration.
   "reference_threshold": 30
 }
 ```
-## POST /llm/test
+
+### Notes
+
+- model specifies the configured Ollama model.
+- model_available indicates whether the configured model is installed and available for use.
+
+## POST /api/llm/test
 Verifies communication with Ollama and returns generated text.
 
 ### Request
@@ -504,7 +510,47 @@ Verifies communication with Ollama and returns generated text.
 |---------|---------|
 500	|Failed to communicate with Ollama |
 
-## GET /translation-memory/statistics
+## POST /api/llm/install-model
+
+Downloads and installs an Ollama model.
+
+If no model is specified, the configured model from the application configuration is used.
+
+### Request
+
+```json
+{}
+```
+
+or
+
+```json
+{
+  "model": "qwen3:4b"
+}
+```
+
+### Success Response
+
+```json
+{
+  "success": true,
+  "model": "qwen3:4b",
+  "message": "Model installed successfully"
+}
+```
+
+### Failed Response
+
+```json
+{
+  "success": false,
+  "model": "KalleAnka3:29",
+  "message": "pull model manifest: file does not exist (status code: 500)"
+}
+```
+
+## GET /api/translation-memory/statistics
 Returns translation memory statistics.
 ### Response
 ```json
@@ -518,8 +564,9 @@ Returns translation memory statistics.
 
 ## Dashboard endpoints
 ```text
-GET /
-GET /llm/config
-GET /translation-memory/statistics
+GET /api/
+GET /api/llm/config
+GET /api/translation-memory/statistics
+POST /api/llm/install-model
 ```
 Used by the Vue frontend dashboard.
