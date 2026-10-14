@@ -140,6 +140,8 @@ Responsibilities:
 - Service status monitoring
 - Translation configuration display
 - Translation Memory statistics display
+- Ollama model availability monitoring
+- Ollama model installation
 
 ### Import Translation Memory
 
@@ -179,6 +181,20 @@ Responsibilities:
 - Label rendering
 - Value rendering
 - Consistent dashboard presentation
+
+### ModelCard
+
+A dedicated dashboard component is used when the configured Ollama model is not installed.
+
+Responsibilities:
+
+- Display configured model name
+- Show installation status
+- Trigger model installation
+- Display installation progress
+- Display installation errors
+
+The component communicates with the backend through the LLM service and allows users to install the configured model without direct access to Docker or Ollama.
 
 ## Stores
 
@@ -244,6 +260,18 @@ Provides:
 - Update operations
 - Delete operations
 
+### LLM Service
+
+Provides:
+
+- Model installation
+- Ollama model management
+
+Current capabilities:
+
+- Install configured model
+- Install a specified model
+
 ## Utilities
 
 ### objectToRows()
@@ -273,6 +301,19 @@ becomes:
     },
 ]
 ```
+The utility also supports value transformation through value maps, allowing backend values to be converted into presentation-friendly text.
+
+Example:
+
+```text
+true
+```
+
+becomes:
+
+```text
+Installed
+```
 
 ## Frontend Workflows
 
@@ -286,6 +327,21 @@ Dashboard Store
 Dashboard Service
       ↓
 REST API
+```
+### Model Installation Workflow
+
+```text
+Dashboard View
+      ↓
+ModelCard
+      ↓
+LLM Service
+      ↓
+REST API
+      ↓
+POST /api/llm/install-model
+      ↓
+Installation Result
 ```
 
 ### Translation Memory Import Workflow

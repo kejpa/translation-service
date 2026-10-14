@@ -7,6 +7,9 @@ services:
       - "${PORT:-8000}:8000"
     restart: unless-stopped
 
+    volumes:
+      - ./docs:/app/runtime-docs
+
   ollama:
     image: ollama/ollama
     container_name: ollama

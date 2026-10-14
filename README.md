@@ -158,29 +158,28 @@ docker compose -f docker-compose.dev.yaml up
 
 ### API documentation:
 
-http://localhost:8000/docs
+http://localhost:8000/api/docs
 
 Available endpoints include:
 
-- /health
-- /docx/parse
-- /docx/statistics
-- /docx/translate
-- /document-pairs/import
-- /downloads/{filename}
-- /translations/exact
-- /translations/fuzzy
-- /translation-units
-- /translation-units/{id}
-- /llm/config
-- /llm/test
+- /api/health
+- /api/docx/parse
+- /api/docx/statistics
+- /api/docx/translate
+- /api/document-pairs/import
+- /api/downloads/{filename}
+- /api/translations/exact
+- /api/translations/fuzzy
+- /api/translation-units
+- /api/translation-units/{id}
+- /api/llm/config
+- /api/llm/test
 
-#### /health endpoint
+#### /api/health endpoint
 ```json
 {
   "status": "running",
   "database": "connected",
-  "docker": "running",
   "ollama": "connected",
   "model": "gemma3:4b",
   "model_available": true,
@@ -210,7 +209,7 @@ Example:
 }
 ```
 ### Generated Documents
-Translated documents are stored in the generated/ directory and can be downloaded using the provided download URL. Example: /downloads/my-translation.docx
+Translated documents are stored in the generated/ directory and can be downloaded using the provided download URL. Example: /api/downloads/my-translation.docx
 
 ## Translation Memory Maintenance
 
@@ -224,20 +223,82 @@ Available operations:
 
 Examples:
 
-GET /translation-units?query=maailma
+GET /api/translation-units?query=maailma
 
-PUT /translation-units/{id}
+PUT /api/translation-units/{id}
 
-DELETE /translation-units/{id}
+DELETE /api/translation-units/{id}
 
-## Production-like Environment
+## Development Environment
 
-Start the production container:
+Start the development environment:
+
+```bash
+docker compose -f docker-compose.dev.yaml up
+```
+
+### Development Architecture
+
+Frontend:
+
+- Vue 3
+- Vite development server
+- http://localhost:5173
+
+Backend:
+
+- FastAPI
+- http://localhost:8000
+
+API Documentation:
+
+- http://localhost:8000/api/docs
+
+During development, the frontend is served by the Vite development server and communicates with the backend through the Vite proxy configuration.
+
+## Production Deployment
+
+Start the production environment:
+
 ```bash
 docker compose up
 ```
 
-This configuration runs from the built image and does not use hot reload.
+### Production Architecture
+
+Frontend:
+
+- Vue application compiled using Vite
+- Frontend assets bundled into the production image
+- Served by FastAPI
+
+Backend:
+
+- FastAPI
+- Same container as the frontend
+
+Application:
+
+- http://localhost:8000
+
+API:
+
+- http://localhost:8000/api
+
+Swagger UI:
+
+- http://localhost:8000/api/docs
+
+The production deployment uses a multi-stage Docker build.
+
+Frontend assets are compiled during image creation and included in the runtime image.
+
+SPA routing is handled by FastAPI, allowing direct navigation to routes such as:
+
+- /dashboard
+- /import
+- /translate
+- /translation-memory
 
 ## Running Tests
 
@@ -284,6 +345,7 @@ OLLAMA_BASE_URL=http://ollama:11434
 OLLAMA_MODEL=gemma3:4b
 TEMPERATURE=0
 ```
+If the configured model is not installed, the Dashboard provides an Install Model action that downloads and installs the configured model automatically.
 
 ### Fuzzy Matching Configuration
 ```text
