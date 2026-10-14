@@ -13,19 +13,18 @@ const healthLabelMap = {
   service: 'Service name',
   version: "Version",
   ollama: 'Ollama',
-  model: 'Model',
-  model_available: 'Model Available',
-  reuse_threshold: 'Reuse Threshold',
-  reference_threshold: 'Reference Threshold',
 }
 const configurationLabelMap = {
   model: 'Model',
   temperature: 'Temperature',
-  model_available: 'Model Available',
+  model_available: 'Status',
   reuse_threshold: 'Reuse Threshold',
   reference_threshold: 'Reference Threshold',
 }
-
+const configurationValueMap = {
+  model_available: value =>
+    value ? '✅ Installed' : '❌ Not Installed',
+}
 const translationMemoryLabelMap = {
   database_type: 'Database engine',
   database_name: 'Database name',
@@ -38,6 +37,7 @@ export const useDashboardStore = defineStore(
   () => {
     const health = ref(null)
     const configuration = ref(null)
+    const configurationData = ref(null)
     const translationMemory = ref(null)
 
     const loading = ref(false)
@@ -48,7 +48,8 @@ export const useDashboardStore = defineStore(
 
       try {
         health.value = objectToRows(await await getServiceStatus(), healthLabelMap,)
-        configuration.value = objectToRows(await await getTranslationConfiguration(), configurationLabelMap,)
+        configurationData.value = await getTranslationConfiguration()
+        configuration.value = objectToRows(configurationData.value, configurationLabelMap,configurationValueMap)
         translationMemory.value = objectToRows(await getTranslationMemoryStatistics(), translationMemoryLabelMap)
       } catch (err) {
         error.value = err
@@ -60,6 +61,7 @@ export const useDashboardStore = defineStore(
     return {
       health,
       configuration,
+      configurationData,
       translationMemory,
 
       loading,

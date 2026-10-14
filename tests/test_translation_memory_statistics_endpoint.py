@@ -41,7 +41,7 @@ def test_translation_memory_statistics(
     db.commit()
 
     response = client.get(
-        "/translation-memory/statistics",
+        "/api/translation-memory/statistics",
     )
 
     assert response.status_code == 200
@@ -56,7 +56,7 @@ def test_translation_memory_statistics(
 
 def test_translation_memory_statistics_empty_database():
     response = client.get(
-        "/translation-memory/statistics",
+        "/api/translation-memory/statistics",
     )
 
     assert response.status_code == 200
@@ -81,7 +81,7 @@ def test_translation_memory_statistics_database_unavailable(
     )
 
     response = client.get(
-        "/translation-memory/statistics",
+        "/api/translation-memory/statistics",
     )
 
     assert response.status_code == 503

@@ -35,7 +35,7 @@ def test_exact_matches_endpoint_is_case_insensitive(db):
     db.commit()
 
     response = client.get(
-        "/translations/exact",
+        "/api/translations/exact",
         params={
             "source_text": "hei maailma",
         },
@@ -75,7 +75,7 @@ def test_exact_match_endpoint_is_case_insensitive_uppercase(db):
     db.commit()
 
     response = client.get(
-        "/translations/exact",
+        "/api/translations/exact",
         params={
             "source_text": "HEI MAAILMA",
         },
@@ -95,7 +95,7 @@ def test_exact_match_endpoint_is_case_insensitive_uppercase(db):
 
 def test_exact_match_endpoint_returns_null_when_not_found(db):
     response = client.get(
-        "/translations/exact",
+        "/api/translations/exact",
         params={
             "source_text": "Finns inte",
         },
@@ -124,7 +124,7 @@ def test_translation_uses_new_rule_number(
     )
 
     response = client.post(
-        "/docx/translate",
+        "/api/docx/translate",
         files={
             "file": (
                 "source.docx",

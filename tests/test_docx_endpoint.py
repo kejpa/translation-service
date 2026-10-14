@@ -45,7 +45,7 @@ def create_docx_with_paragraphs(
 
 def test_parse_valid_docx():
     response = client.post(
-        "/docx/parse",
+        "/api/docx/parse",
         files={
             "file": (
                 "test.docx",
@@ -65,7 +65,7 @@ def test_parse_valid_docx():
 
 def test_parse_rejects_non_docx():
     response = client.post(
-        "/docx/parse",
+        "/api/docx/parse",
         files={
             "file": (
                 "test.txt",
@@ -81,7 +81,7 @@ def test_parse_rejects_non_docx():
 
 def test_parse_rejects_corrupt_docx():
     response = client.post(
-        "/docx/parse",
+        "/api/docx/parse",
         files={
             "file": (
                 "broken.docx",
@@ -203,7 +203,7 @@ def test_llm_translation_document(
     source_path.write_bytes(source_docx)
 
     response = client.post(
-        "/docx/translate",
+        "/api/docx/translate",
         files={
             "file": (
                 "source.docx",
@@ -257,7 +257,7 @@ def test_exact_match_same_rule_number_document(
     source_path.write_bytes(source_docx)
 
     response = client.post(
-        "/docx/translate",
+        "/api/docx/translate",
         files={
             "file": (
                 "source.docx",
@@ -309,7 +309,7 @@ def test_exact_match_new_rule_number_document(
     source_path.write_bytes(source_docx)
 
     response = client.post(
-        "/docx/translate",
+        "/api/docx/translate",
         files={
             "file": (
                 "source.docx",

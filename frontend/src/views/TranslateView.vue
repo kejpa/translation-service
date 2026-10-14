@@ -50,9 +50,7 @@ function clearForm() {
 }
 
 function downloadResult() {
-  window.location.href =
-    import.meta.env.VITE_API_BASE_URL +
-    translateStore.result.download_url
+  window.location.href = translateStore.result.download_url
 }
 </script>
 

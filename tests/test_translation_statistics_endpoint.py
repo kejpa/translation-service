@@ -19,7 +19,7 @@ def test_translation_statistics_endpoint(
     )
 
     response = client.post(
-        "/docx/statistics",
+        "/api/docx/statistics",
         files={
             "file": (
                 "source.docx",
@@ -50,7 +50,7 @@ def test_translation_statistics_rejects_non_docx_file(
     db,
 ):
     response = client.post(
-        "/docx/statistics",
+        "/api/docx/statistics",
         files={
             "file": (
                 "source.txt",
@@ -71,7 +71,7 @@ def test_translation_statistics_rejects_invalid_docx(
     db,
 ):
     response = client.post(
-        "/docx/statistics",
+        "/api/docx/statistics",
         files={
             "file": (
                 "source.docx",
@@ -92,7 +92,7 @@ def test_translation_statistics_for_empty_document(
     db,
 ):
     response = client.post(
-        "/docx/statistics",
+        "/api/docx/statistics",
         files={
             "file": (
                 "source.docx",
@@ -145,7 +145,7 @@ def test_translation_statistics_counts_fuzzy_high_matches(
     db.commit()
 
     response = client.post(
-        "/docx/statistics",
+        "/api/docx/statistics",
         files={
             "file": (
                 "source.docx",
@@ -209,7 +209,7 @@ def test_translation_statistics_counts_mixed_translation_statuses(
     db.commit()
 
     response = client.post(
-        "/docx/statistics",
+        "/api/docx/statistics",
         files={
             "file": (
                 "source.docx",
