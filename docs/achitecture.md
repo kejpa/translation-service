@@ -103,18 +103,18 @@ FastAPI provides:
 Examples:
 
 ```text
-/health
-/docx/parse
-/docx/statistics
-/docx/translate
-/document-pairs/import
-/downloads/{filename}
-/translations/exact
-/translations/fuzzy
-/translation-units
-/translation-units/{id}
-/llm/config
-/llm/test
+/api/health
+/api/docx/parse
+/api/docx/statistics
+/api/docx/translate
+/api/document-pairs/import
+/api/downloads/{filename}
+/api/translations/exact
+/api/translations/fuzzy
+/api/translation-units
+/api/translation-units/{id}
+/api/llm/config
+/api/llm/test
 ```
 
 
@@ -182,7 +182,7 @@ generated/
 
 Download:
 
-GET /downloads/{filename}
+GET /api/downloads/{filename}
 
 ### Translation Memory
 
@@ -275,9 +275,9 @@ The Translation Memory maintenance layer is responsible for:
 
 Endpoints:
 ```text
-GET    /translation-units
-PUT    /translation-units/{id}
-DELETE /translation-units/{id}
+GET    /api/translation-units
+PUT    /api/translation-units/{id}
+DELETE /api/translation-units/{id}
 ```
 
 ### Database Layer
@@ -348,6 +348,7 @@ Current capabilities:
 - Startup connectivity verification
 - Model availability verification
 - Configurable model selection
+- Dashboard-driven model installation
 - Prompt handling
 - LLM translation service
 - LLM fallback translation
@@ -408,7 +409,7 @@ Dashboard information is retrieved from dedicated endpoints while the health end
 
 Endpoint:
 
-GET /health
+GET /api/health
 
 ## Deployment Architecture
 
@@ -464,10 +465,14 @@ docker-compose.yaml
 
 Characteristics:
 
+Characteristics:
+
 - No hot reload
-- Dedicated production image
-- Frontend assets built during release pipeline
+- Multi-stage Docker build
+- Frontend assets built during image creation
+- Vue frontend served by FastAPI
 - Frontend and backend delivered as a single application
+- SPA routing handled by FastAPI
 - Ollama accessible only through the Docker network
 - Reduced attack surface
 
@@ -477,19 +482,21 @@ In both development and production environments, users interact with the Vue fro
 Client
    |
    v
-Vue Frontend
-   |
-   v
- FastAPI
-    |
-    +------------+
-    |            |
-    v            v
- SQLite      Ollama
-    |
-    v
-Generated
-DOCX
++-----------------------+
+| FastAPI Runtime       |
+|                       |
+|  Vue Frontend Assets  |
+|  REST API             |
++-----------------------+
+          |
+          +------------+
+          |            |
+          v            v
+       SQLite      Ollama
+          |
+          v
+     Generated
+        DOCX
 ```
 
 ### Release Workflow
@@ -517,6 +524,14 @@ Production Deployment
 Production releases are created from tagged commits. GitHub Actions builds the application, executes automated validation, publishes container images to GitHub Container Registry and prepares the images for deployment.
 
 The same architectural principles are used in both development and production environments. The primary differences are hot reload support, exposed development services and automated release packaging.
+
+### Model Provisioning
+
+The configured Ollama model is validated during startup.
+
+If the configured model is not installed, the Dashboard provides a model installation workflow allowing users to download and install the configured model directly from the user interface.
+
+This removes the need for manual `docker exec` access to the Ollama container.
 
 ## Testing Strategy
 
