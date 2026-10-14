@@ -1,11 +1,12 @@
 #!/bin/sh
 
-if [ ! -f .env ]; then
+if [ ! -f /app/runtime-host/.env ]; then
     echo "Creating .env from .env.example"
-    cp .env.example .env
-else
-    echo "Using existing .env"
+
+    cp .env.example /app/runtime-host/.env
 fi
+
+ln -sf /app/runtime-host/.env .env
 
 mkdir -p /app/runtime-docs
 
