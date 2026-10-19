@@ -22,26 +22,22 @@ Required resources:
 - Sufficient disk space for Ollama models
 ## Obtaining the Application
 
-Create a working directory for the deployment:
+Create a working directory:
 
 ```bash
 mkdir translation-service
 cd translation-service
 ```
 
-Download the deployment file:
+Download the latest version of `docker-compose.yaml` from:
 
-```bash
-curl -LO https://github.com/<organization-or-user>/translation-service/releases/latest/download/docker-compose.yaml
+```text
+https://raw.githubusercontent.com/kejpa/translation-service/main/docker-compose.yaml
 ```
-
-Alternatively, download `docker-compose.yaml` from the latest release using a web browser.
 
 The compose file references the published Translation Service container image hosted in GitHub Container Registry (GHCR).
 
 All required application files are created automatically during startup.
-
-Proceed with the installation by starting the application.
 
 ## Starting the Application
 
